@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>流浪 — dev@home</title>
+<meta name="description" content="祸兮福所倚,福兮祸所伏">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/crt.css">
+</head>
+<body>
+<div class="crt-scanlines"></div>
+<div class="crt-vignette"></div>
+
+<nav class="nav">
+  <div class="container">
+    <span class="brand">dev@home</span>
+    <span class="spacer"></span>
+    <div class="search-box">
+      <input type="text" id="site-search" autocomplete="off" spellcheck="false" placeholder="搜索…  /  聚焦" aria-label="搜索站点内容">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <a class="link" href="#about">whoami</a>
+    <a class="link" href="#experience">经历</a>
+    <a class="link" href="#thoughts">思考</a>
+    <a class="link" href="#projects">项目</a>
+    <a class="link" href="#footprint">足迹</a>
+    <a class="link" href="#notes">笔记</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="cmd">ssh dev@home --connect</div>
+    <h1 class="name">流浪</h1>
+    <div class="role">高级工程师</div>
+    <p class="tagline">祸兮福所倚,福兮祸所伏<span class="cursor"></span></p>
+    <div class="actions">
+      <a class="btn" href="https://github.com/sfqin" target="_blank" rel="noopener">GitHub</a>
+      
+      <a class="btn" href="#footprint">./modules/footprint</a>
+    </div>
+  </div>
+</header>
+
+
+<section id="about">
+  <div class="container">
+    <div class="cmd">cat about.md</div>
+    
+      <div class="article"><p>就是高级工程师</p>
+</div>
+    
+    
+    <div class="tags">
+      <span class="tag green">Go，Java，MySQL，mq，rpc ...</span>
+    </div>
+    
+    <p class="note-row"><span class="date">location</span><span>Guangdong Province China</span></p>
+  </div>
+</section>
+
+
+<section id="experience">
+  <div class="container">
+    <div class="cmd">tail -f experience.log</div>
+    
+      
+      <div class="log-entry">
+        <div class="period">2020.06-至今</div>
+        <div><span class="company">zj</span> <span class="role">— software engineer</span></div>
+        <div>懂一点的小白</div>
+      </div>
+      
+      <div class="log-entry">
+        <div class="period">2018.07-2020.05</div>
+        <div><span class="company">tx</span> <span class="role">— software engineer</span></div>
+        <div>小白一枚</div>
+      </div>
+      
+      <div class="log-entry">
+        <div class="period">2023 — 至今</div>
+        <div><span class="company">终端实验室</span> <span class="role">— 资深后端工程师</span></div>
+        <div>带领平台团队构建高吞吐的 Go 服务。通过把热点路径改写为无锁队列，将 p99 延迟降低了 40%。</div>
+      </div>
+      
+      <div class="log-entry">
+        <div class="period">2020 — 2023</div>
+        <div><span class="company">云atlas</span> <span class="role">— 高级软件工程师</span></div>
+        <div>构建多租户计费流水线（Go &#43; Postgres &#43; Kafka），负责日均 30 亿事件接入层的 on-call。</div>
+      </div>
+      
+    
+  </div>
+</section>
+
+
+<section id="thoughts">
+  <div class="container">
+    <div class="cmd">less thoughts/</div>
+    
+      
+      <div class="thought">
+        <div>工作十年，我越来越相信：一个工程师的成长曲线，不是由他「能写多复杂的代码」决定的，而是由他「敢删多少代码」决定的。刚入行时，我们用增加来证明自己——加功能、加抽象、加配置项、加一层又一层的间接。那时最怕别人觉得方案太简单。后来才慢慢明白，简单不是能力的下限，而是上限：你要先把一个问题真正理解透，才有底气把它压缩成一段读起来平平无奇、却恰好覆盖所有边界的代码。真正难的从来不是把系统做大，而是在它长大之后，还能一刀刀把不再需要的部分削掉，让它保持一个人脑能装得下的形状。所以现在做 code review，我最欣赏的一类改动，是那种 diff 里删除远多于新增、功能却一点没少的提交——它背后往往是一次真正想清楚了的重构。
+</div>
+        <div class="meta">[职业] 2026-07-11</div>
+      </div>
+      
+      <div class="thought">
+        <div>最好的抽象，是你平时根本注意不到它，直到某天你要改动它——而那一刻，它恰好就在你会去找的地方。</div>
+        <div class="meta">[工程] 2026-07-01</div>
+      </div>
+      
+      <div class="thought">
+        <div>命令行参数胜过环境变量：它会出现在 --help 里、出现在你的 shell 历史里，也出现在半年后别人贴出来的 bug 报告里。</div>
+        <div class="meta">[工具] 2026-06-18</div>
+      </div>
+      
+      <div class="thought">
+        <div>确定性回放把我的 flaky 测试变成了无聊的测试。而无聊的测试，才是你真正信得过的测试。</div>
+        <div class="meta">[测试] 2026-05-30</div>
+      </div>
+      
+      <div class="thought">
+        <div>先交付纵向切片。一条能端到端跑通的细路径，胜过一份只在文档里跑得通的宏大计划。</div>
+        <div class="meta">[产品] 2026-05-12</div>
+      </div>
+      
+    
+  </div>
+</section>
+
+
+<section id="projects">
+  <div class="container">
+    <div class="cmd">ls projects/</div>
+    
+      <div class="grid">
+        
+        <div class="card">
+          <div class="name"><a href="https://github.com/sfqin/chronicle-engine" target="_blank" rel="noopener">chronicle-engine</a></div>
+          <div class="desc">一个面向文字冒险与叙事游戏的确定性剧情引擎。核心思路是把「内容」「引擎」「AI 叙述」三层彻底解耦：内容层用声明式脚本定义所有可能的节点、分支与后果；引擎层是唯一能修改世界状态（WorldState）的地方，所有改动都走事务，支持检查点（Checkpoint）与回溯；AI 层只负责解析玩家的自由输入并做文本润色，绝不允许直接写状态。为了保证「同样的操作必然得到同样的结果」，随机性不是全局的，而是从每个动作的签名派生出子随机流，因此存档回放、并发模拟、单元测试都能得到逐字节一致的输出。附带一个 story-checker 脚本，可在 CI 里自动检查泄露的占位符 ID、走不通的死路、以及不满足确定性的分支。
+</div>
+          <div class="meta">
+            <span>Go</span>
+            <span class="star">231</span>
+            <span>MIT</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="name"><a href="https://github.com/sfqin/blog" target="_blank" rel="noopener">dev-home-blog</a></div>
+          <div class="desc">自托管的复古 CRT 风格个人博客，带本地管理后台，可静态导出到多个免费 CDN。</div>
+          <div class="meta">
+            <span>Go</span>
+            <span class="star">42</span>
+            <span>MIT</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="name"><a href="https://github.com/sfqin/globe-canvas" target="_blank" rel="noopener">globe-canvas</a></div>
+          <div class="desc">零依赖的交互式 3D 足迹地球仪，基于 Canvas 2D 绘制，可下钻到省与城市。</div>
+          <div class="meta">
+            <span>JavaScript</span>
+            <span class="star">128</span>
+            <span>MIT</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="name"><a href="https://github.com/sfqin/seededrandom" target="_blank" rel="noopener">seededrandom</a></div>
+          <div class="desc">用于仿真与游戏引擎的确定性、可回放随机数生成器，可从动作签名派生子随机流。</div>
+          <div class="meta">
+            <span>Go</span>
+            <span class="star">17</span>
+            <span>Apache-2.0</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="name"><a href="https://github.com/sfqin/dotfiles" target="_blank" rel="noopener">dotfiles</a></div>
+          <div class="desc">我的终端配置：zsh &#43; tmux &#43; neovim，为绿字黑底的 CRT 风格调校。</div>
+          <div class="meta">
+            <span>Shell</span>
+            <span class="star">63</span>
+            <span>Unlicense</span>
+          </div>
+        </div>
+        
+      </div>
+    
+  </div>
+</section>
+
+
+<section id="footprint">
+  <div class="container">
+    <div class="cmd">./modules/footprint --render</div>
+    <div class="globe-back"><a id="globe-cd-up" style="display:none">$ cd ..</a></div>
+    <div class="globe-breadcrumb" id="globe-breadcrumb">~/globe</div>
+    <canvas id="globe-canvas" width="440" height="440"></canvas>
+    <div class="globe-stats" id="globe-stats"></div>
+  </div>
+</section>
+
+
+<section id="notes">
+  <div class="container">
+    <div class="cmd">ls -lt notes/</div>
+    
+      
+      <div class="note-row">
+        <span class="date">2026-07-12</span>
+        <a class="title" href="/posts/build-local-admin-static-blog">从零做一个本地后台&#43;静态发布的博客</a>
+        <span class="tags-inline">#架构 #Go #静态站点 #CDN #SQLite </span>
+      </div>
+      
+      <div class="note-row">
+        <span class="date">2026-07-05</span>
+        <a class="title" href="/posts/chasing-the-p99">追查 p99：延迟究竟藏在哪里</a>
+        <span class="tags-inline">#Go #性能 #延迟 </span>
+      </div>
+      
+      <div class="note-row">
+        <span class="date">2026-06-20</span>
+        <a class="title" href="/posts/rewrote-parser-three-times">同一个解析器，我重写了三遍</a>
+        <span class="tags-inline">#解析 #正则 #Go </span>
+      </div>
+      
+      <div class="note-row">
+        <span class="date">2026-06-02</span>
+        <a class="title" href="/posts/free-hosting-china-abroad">国内外都能访问的免费托管方案</a>
+        <span class="tags-inline">#托管 #CDN #静态站点 </span>
+      </div>
+      
+    
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="cmd">echo "© 2026 流浪 — built with Go · self-hosted · no trackers"</div>
+  </div>
+</footer>
+
+<script>window.__BASE__ = "";</script>
+<script src="/static/js/globe.js" defer></script>
+<script src="/static/js/search.js" defer></script>
+</body>
+</html>
