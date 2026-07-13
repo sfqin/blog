@@ -1,0 +1,15 @@
+# Build artifacts
+/dist/
+/tmp/
+*.exe
+
+# Local SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# Node (only needed to (re)generate geo data / run tests)
+/node_modules/
+
+# OS / editor
+.DS_Store

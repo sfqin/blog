@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Post.Title}} — dev@home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/crt.css">
+</head>
+<body>
+<div class="crt-scanlines"></div>
+<div class="crt-vignette"></div>
+
+<nav class="nav">
+  <div class="container">
+    <span class="brand">dev@home</span>
+    <span class="spacer"></span>
+    <a class="link" href="/">$ cd ~</a>
+    <a class="link" href="/#notes">notes/</a>
+  </div>
+</nav>
+
+<section>
+  <div class="container">
+    <div class="cmd">cat notes/{{.Post.Slug}}.md</div>
+    <h1 class="name" style="font-size:clamp(24px,5vw,40px)">{{.Post.Title}}</h1>
+    <div class="note-row" style="border:none">
+      <span class="date">{{.Post.Date}}</span>
+      <span class="tags-inline">{{range .Post.TagList}}#{{.}} {{end}}</span>
+    </div>
+    <article class="article">
+      {{markdown .Post.BodyMD}}
+    </article>
+    <p style="margin-top:32px"><a class="btn" href="/#notes">$ cd ..</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="cmd">echo "© {{year}} {{if .Profile.Name}}{{.Profile.Name}}{{else}}dev@home{{end}}"</div>
+  </div>
+</footer>
+</body>
+</html>

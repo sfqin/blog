@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{if .Profile.Name}}{{.Profile.Name}}{{else}}dev@home{{end}} — dev@home</title>
+<meta name="description" content="{{.Profile.Tagline}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/crt.css">
+</head>
+<body>
+<div class="crt-scanlines"></div>
+<div class="crt-vignette"></div>
+
+<nav class="nav">
+  <div class="container">
+    <span class="brand">dev@home</span>
+    <span class="spacer"></span>
+    <a class="link" href="#about">whoami</a>
+    <a class="link" href="#experience">经历</a>
+    <a class="link" href="#thoughts">思考</a>
+    <a class="link" href="#projects">项目</a>
+    <a class="link" href="#footprint">足迹</a>
+    <a class="link" href="#notes">笔记</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="cmd">ssh dev@home --connect</div>
+    <h1 class="name">{{if .Profile.Name}}{{.Profile.Name}}{{else}}dev@home{{end}}</h1>
+    <div class="role">{{if .Profile.Title}}{{.Profile.Title}}{{else}}Backend Engineer{{end}}</div>
+    <p class="tagline">{{if .Profile.Tagline}}{{.Profile.Tagline}}{{else}}// 在这里写一句话简介（通过 /admin 编辑）{{end}}<span class="cursor"></span></p>
+    <div class="actions">
+      {{if .Profile.GitHubURL}}<a class="btn" href="{{.Profile.GitHubURL}}" target="_blank" rel="noopener">GitHub</a>{{end}}
+      {{if .Profile.Email}}<a class="btn amber" href="mailto:{{.Profile.Email}}">Email</a>{{end}}
+      <a class="btn" href="#footprint">./modules/footprint</a>
+    </div>
+  </div>
+</header>
+
+<!-- whoami -->
+<section id="about">
+  <div class="container">
+    <div class="cmd">cat about.md</div>
+    {{if .Profile.AboutMD}}
+      <div class="article">{{markdown .Profile.AboutMD}}</div>
+    {{else}}
+      <p class="empty">// 自我介绍待填写（/admin/profile）</p>
+    {{end}}
+    {{with .Profile.StackTags}}
+    <div class="tags">
+      {{range .}}<span class="tag green">{{.}}</span>{{end}}
+    </div>
+    {{end}}
+    {{if .Profile.Location}}<p class="note-row"><span class="date">location</span><span>{{.Profile.Location}}</span></p>{{end}}
+  </div>
+</section>
+
+<!-- experience -->
+<section id="experience">
+  <div class="container">
+    <div class="cmd">tail -f experience.log</div>
+    {{if .Experiences}}
+      {{range .Experiences}}
+      <div class="log-entry">
+        <div class="period">{{.Period}}</div>
+        <div><span class="company">{{.Company}}</span> <span class="role">— {{.Role}}</span></div>
+        <div>{{.Description}}</div>
+      </div>
+      {{end}}
+    {{else}}
+      <p class="empty">// 暂无经历（/admin/experiences）</p>
+    {{end}}
+  </div>
+</section>
+
+<!-- thoughts -->
+<section id="thoughts">
+  <div class="container">
+    <div class="cmd">less thoughts/</div>
+    {{if .Thoughts}}
+      {{range .Thoughts}}
+      <div class="thought">
+        <div>{{.Body}}</div>
+        <div class="meta">{{if .Topic}}[{{.Topic}}] {{end}}{{.Date}}</div>
+      </div>
+      {{end}}
+    {{else}}
+      <p class="empty">// 暂无思考（/admin/thoughts）</p>
+    {{end}}
+  </div>
+</section>
+
+<!-- projects -->
+<section id="projects">
+  <div class="container">
+    <div class="cmd">ls projects/</div>
+    {{if .Projects}}
+      <div class="grid">
+        {{range .Projects}}
+        <div class="card">
+          <div class="name">{{if .URL}}<a href="{{.URL}}" target="_blank" rel="noopener">{{.Name}}</a>{{else}}{{.Name}}{{end}}</div>
+          <div class="desc">{{.Description}}</div>
+          <div class="meta">
+            {{if .Language}}<span>{{.Language}}</span>{{end}}
+            {{if .Stars}}<span class="star">{{.Stars}}</span>{{end}}
+            {{if .License}}<span>{{.License}}</span>{{end}}
+          </div>
+        </div>
+        {{end}}
+      </div>
+    {{else}}
+      <p class="empty">// 暂无项目（/admin/projects）</p>
+    {{end}}
+  </div>
+</section>
+
+<!-- footprint globe -->
+<section id="footprint">
+  <div class="container">
+    <div class="cmd">./modules/footprint --render</div>
+    <div class="globe-back"><a id="globe-cd-up" style="display:none">$ cd ..</a></div>
+    <div class="globe-breadcrumb" id="globe-breadcrumb">~/globe</div>
+    <canvas id="globe-canvas" width="440" height="440"></canvas>
+    <div class="globe-stats" id="globe-stats"></div>
+    <div class="globe-hint">拖拽旋转地球 · 点击琥珀光点进入国家 · 再点省/州下钻到城市</div>
+  </div>
+</section>
+
+<!-- notes / blog -->
+<section id="notes">
+  <div class="container">
+    <div class="cmd">ls -lt notes/</div>
+    {{if .Posts}}
+      {{range .Posts}}
+      <div class="note-row">
+        <span class="date">{{.Date}}</span>
+        <a class="title" href="/posts/{{.Slug}}">{{.Title}}</a>
+        <span class="tags-inline">{{range .TagList}}#{{.}} {{end}}</span>
+      </div>
+      {{end}}
+    {{else}}
+      <p class="empty">// 暂无文章（/admin/posts）</p>
+    {{end}}
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="cmd">echo "© {{year}} {{if .Profile.Name}}{{.Profile.Name}}{{else}}dev@home{{end}} — built with Go · self-hosted · no trackers"</div>
+  </div>
+</footer>
+
+<script src="/static/js/globe.js" defer></script>
+</body>
+</html>

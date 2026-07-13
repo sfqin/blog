@@ -1,0 +1,41 @@
+{{template "admin_head" .}}
+{{$isNew := .Data.IsNew}}{{$it := .Data.Item}}
+<h1>{{if $isNew}}new footprint{{else}}edit footprint{{end}}</h1>
+<form method="post" action="{{if $isNew}}/admin/footprints{{else}}/admin/footprints/{{$it.ID}}{{end}}">
+  <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+  <div class="row2">
+    <div class="field">
+      <label>country_code 国家代码（ISO-2）</label>
+      <input type="text" name="country_code" value="{{if not $isNew}}{{$it.CountryCode}}{{end}}" placeholder="CN" maxlength="2" style="text-transform:uppercase">
+    </div>
+    <div class="field">
+      <label>country_name 国家名</label>
+      <input type="text" name="country_name" value="{{if not $isNew}}{{$it.CountryName}}{{end}}" placeholder="中国">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>province 省/州/都道府县</label>
+      <input type="text" name="province" value="{{if not $isNew}}{{$it.Province}}{{end}}" placeholder="湖南省">
+    </div>
+    <div class="field">
+      <label>city 城市/区</label>
+      <input type="text" name="city" value="{{if not $isNew}}{{$it.City}}{{end}}" placeholder="长沙市">
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label>note 备注</label>
+      <input type="text" name="note" value="{{if not $isNew}}{{$it.Note}}{{end}}">
+    </div>
+    <div class="field">
+      <label>sort_order 排序</label>
+      <input type="number" name="sort_order" value="{{if not $isNew}}{{$it.SortOrder}}{{else}}0{{end}}">
+    </div>
+  </div>
+  <div class="actions-bar">
+    <button class="btn-primary" type="submit">save</button>
+    <a class="btn-ghost" style="text-decoration:none" href="/admin/footprints">cancel</a>
+  </div>
+</form>
+{{template "admin_foot" .}}
