@@ -154,11 +154,62 @@ Gitee 免费版有两个特殊点：**子路径托管** + **不自动部署**。
 ## 日常使用（记住这个就够）
 
 ```
-本地 ./blogbin serve  →  在 /admin 写文章/改数据  →  ./scripts/publish.sh
-                                                （若用 Gitee，再跑 publish-gitee.sh 并手动点更新）
+本地 ./blogbin serve  →  在 /admin 写文章/改数据  →  ./scripts/publish-all.sh
 ```
 
-发布后等约 1 分钟，Cloudflare/EdgeOne 线上就更新了。**本地预览是即时的**。
+一条 `publish-all.sh` 会把内容渲染成两份、推到四个免费平台（见下节）。
+发布后等约 1 分钟，Cloudflare/EdgeOne/GitHub Pages 线上就自动更新了；Gitee
+免费版需再手动点一次“更新”。**本地预览是即时的**。
+
+> 只想推部分平台时仍可用单独脚本：`publish.sh`（GitHub 根路径 → Cloudflare+EdgeOne）、
+> `publish-gitee.sh <repo>`（Gitee 子路径）。
+
+---
+
+## 一键发布到全部四个平台（`publish-all.sh`）
+
+这套脚本把「本地一次操作 → 四个免费平台同时上线」自动化。核心是**两份构建、四处分发**：
+
+```
+                       ┌─ 根路径构建 dist/ ──→ GitHub master ─┬─→ Cloudflare Pages（海外，自动）
+本地 blog.db           │                                      └─→ EdgeOne Pages（国内加速，自动）
+  │  publish-all.sh    │
+  └────────────────────┤
+                       └─ /blog 子路径构建 ─┬─→ GitHub gh-pages 分支 ─→ GitHub Pages（自动）
+                                            └─→ Gitee master ────────→ Gitee Pages（手动点“更新”）
+```
+
+**为什么要两份构建**：
+- Cloudflare / EdgeOne 在**域名根路径**托管，资源用 `/static`、`/posts`（根路径版）。
+- GitHub Pages（`sfqin.github.io/blog`）和 Gitee Pages（`qzcsu.gitee.io/blog`）都在
+  **同一个 `/blog` 子路径**下（正好是仓库名），所以**一份 `BASE_URL=/blog` 构建喂两家**。
+
+**一次性准备**（两个远程都已配好，换机时才需重配）：
+```bash
+git remote add origin git@github.com:sfqin/blog.git   # GitHub
+git remote add gitee  git@gitee.com:qzcsu/blog.git     # Gitee
+```
+
+**用法**：
+```bash
+DB_PATH=./blog.db ./scripts/publish-all.sh                 # 推全部四个平台
+DB_PATH=./blog.db ./scripts/publish-all.sh "post: 新文章"   # 自定义提交说明
+SKIP_GITEE=1     ./scripts/publish-all.sh                   # 跳过 Gitee
+SKIP_GH_PAGES=1  ./scripts/publish-all.sh                   # 跳过 GitHub Pages
+SUBPATH=/blog    ./scripts/publish-all.sh                   # 覆盖子路径（默认 /blog）
+```
+
+**各平台一次性开启方式**：
+| 平台 | 数据源 | 控制台一次性设置 | 访问地址 |
+|------|--------|------------------|----------|
+| Cloudflare Pages | GitHub `master` 的 `dist/` | Connect to Git → 选 `sfqin/blog`；构建命令留空、输出目录 `dist` | `https://<项目名>.pages.dev` |
+| EdgeOne Pages | 同一个 GitHub `master` | 导入同一个 `sfqin/blog`；同上设置 | EdgeOne 默认域名 |
+| GitHub Pages | GitHub `gh-pages` 分支 | Settings → Pages → Deploy from a branch → 分支 `gh-pages`、目录 `/(root)` | `https://sfqin.github.io/blog/` |
+| Gitee Pages | Gitee `master` | 实名认证 → 服务 → Gitee Pages → 分支 `master` → 启动；**之后每次推送后点“更新”** | `https://qzcsu.gitee.io/blog/` |
+
+> `gh-pages` 分支和 Gitee `master` 由脚本用临时仓库单独强推，是**纯静态站**（根目录就是
+> `index.html`），不含源码历史，也不会污染 master。因此 GitHub Pages 直接选 `gh-pages`
+> 就能出站，无需把静态文件塞进 master 根目录或 `docs/`。
 
 ---
 
@@ -176,15 +227,16 @@ Gitee 免费版有两个特殊点：**子路径托管** + **不自动部署**。
 
 | 现象 | 处理 |
 |------|------|
-| `publish.sh` 报 "no git remote" | 先执行第 1 步的 `git remote add origin ...` |
+| `publish-all.sh` 报 "no git remote" | 先加远程：`git remote add origin git@github.com:sfqin/blog.git`、`git remote add gitee git@gitee.com:qzcsu/blog.git` |
 | 打开 pages.dev 样式/JS 丢失 | 确认 Cloudflare/EdgeOne 输出目录填的是 `dist`、构建命令留空 |
 | 文章点进去 404 | 确认是用发布脚本发布的（会生成 `posts/<slug>.html`） |
-| 改了内容线上没变 | 确认发布脚本 `git push` 成功；到平台控制台看部署日志 |
-| Gitee 打开样式全乱/资源 404 | 确认用的是 `publish-gitee.sh <repo>`（子路径构建），且 `<repo>` 与仓库名一致 |
+| 改了内容线上没变 | 确认 `publish-all.sh` 推送成功；到平台控制台看部署日志 |
+| GitHub Pages / Gitee 样式全乱、资源 404 | 子路径版没构建对：确认脚本按 `BASE_URL=/blog` 出的站，且仓库名与子路径一致（都为 `blog`） |
+| GitHub Pages 打不开/404 | Settings → Pages 里 Source 要选 **`gh-pages` 分支 + `/(root)`**，不是 master |
 | Gitee push 了但没更新 | Gitee 免费版不自动部署，需到 服务 → Gitee Pages 手动点“更新” |
 | EdgeOne/Gitee 绑域名报要备案 | 国内加速区自定义域名需 ICP 备案；先用平台默认域名（免备案） |
 | 忘记本地后台密码 | 重新 `ADMIN_PASSWORD='新密码' ./blogbin serve` 覆盖即可 |
-| 想要 github.io 镜像 | 仓库已含可选的 `.github/workflows/pages.yml`，按里面注释启用 |
+| 只想推某几个平台 | 用 `SKIP_GITEE=1` / `SKIP_GH_PAGES=1` 环境变量跳过对应目标 |
 
 ---
 
