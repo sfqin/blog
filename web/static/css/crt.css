@@ -96,6 +96,60 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--text); }
 .nav a.link:hover { color: var(--green); }
 .nav .spacer { flex: 1; }
 
+/* --- Site search (nav) --- */
+.search-box { position: relative; }
+.search-box #site-search {
+  width: 150px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: width 0.15s ease, border-color 0.15s ease;
+}
+.search-box #site-search::placeholder { color: var(--muted); }
+.search-box #site-search:focus { outline: none; width: 220px; border-color: var(--green); box-shadow: var(--glow); }
+.search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: min(360px, 78vw);
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  padding: 4px;
+}
+.search-results .sr-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+}
+.search-results .sr-item:hover,
+.search-results .sr-item.active { background: rgba(74, 222, 128, 0.1); }
+.search-results .sr-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--amber);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+.search-results .sr-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-results .sr-title mark { background: transparent; color: var(--green); font-weight: 600; }
+.search-results .sr-date { flex-shrink: 0; color: var(--muted); font-size: 11px; }
+.search-results .sr-empty { padding: 10px; color: var(--muted); font-size: 12px; font-style: italic; }
+
 /* --- Hero --- */
 .hero { padding: 84px 0 64px; }
 .hero .name { font-size: clamp(30px, 7vw, 60px); margin: 8px 0; line-height: 1.05; color: var(--green); text-shadow: var(--glow); }
@@ -229,6 +283,9 @@ footer .cmd { justify-content: center; }
   .nav .container { height: auto; padding: 8px 16px; }
   .grid { grid-template-columns: 1fr; }
   .note-row { flex-wrap: wrap; }
+  .search-box { order: 10; flex-basis: 100%; }
+  .search-box #site-search, .search-box #site-search:focus { width: 100%; }
+  .search-results { width: 100%; }
 }
 
 .empty { color: var(--muted); font-style: italic; }

@@ -114,6 +114,23 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir, base str
 		return err
 	}
 
+	// 3b. Search index as a static file at /api/search (published posts only,
+	//     so drafts never leak). search.js fetches this in the browser.
+	index := models.BuildSearchIndex(models.SearchInput{
+		Profile:     profile,
+		Experiences: exps,
+		Thoughts:    thoughts,
+		Projects:    projects,
+		Posts:       posts,
+	}, base)
+	idxBuf, err := json.Marshal(index)
+	if err != nil {
+		return fmt.Errorf("marshal search index: %w", err)
+	}
+	if err := writeFile(filepath.Join(outDir, "api", "search"), idxBuf); err != nil {
+		return err
+	}
+
 	// 4. Copy the embedded static tree (css/js/geo) into dist/static.
 	if err := copyFS(staticFS, filepath.Join(outDir, "static")); err != nil {
 		return fmt.Errorf("copy static: %w", err)

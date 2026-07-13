@@ -20,6 +20,9 @@
 }
 .admin-side a:hover { color: var(--green); background: rgba(74,222,128,0.06); }
 .admin-side a.active { color: var(--green); border-left-color: var(--green); background: rgba(74,222,128,0.08); }
+.admin-side a .nav-en { display: block; font-family: var(--font-mono); }
+.admin-side a .nav-zh { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+.admin-side a:hover .nav-zh, .admin-side a.active .nav-zh { color: var(--green); opacity: 0.75; }
 .admin-side .logout { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 12px; }
 
 .admin-main { flex: 1; padding: 28px 32px; max-width: 900px; }

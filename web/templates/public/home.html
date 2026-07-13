@@ -18,6 +18,10 @@
   <div class="container">
     <span class="brand">dev@home</span>
     <span class="spacer"></span>
+    <div class="search-box">
+      <input type="text" id="site-search" autocomplete="off" spellcheck="false" placeholder="搜索…  /  聚焦" aria-label="搜索站点内容">
+      <div class="search-results" id="search-results"></div>
+    </div>
     <a class="link" href="#about">whoami</a>
     <a class="link" href="#experience">经历</a>
     <a class="link" href="#thoughts">思考</a>
@@ -126,7 +130,6 @@
     <div class="globe-breadcrumb" id="globe-breadcrumb">~/globe</div>
     <canvas id="globe-canvas" width="440" height="440"></canvas>
     <div class="globe-stats" id="globe-stats"></div>
-    <div class="globe-hint">拖拽旋转地球 · 点击琥珀光点进入国家 · 再点省/州下钻到城市</div>
   </div>
 </section>
 
@@ -156,5 +159,6 @@
 
 <script>window.__BASE__ = "{{.Base}}";</script>
 <script src="{{.Base}}/static/js/globe.js" defer></script>
+<script src="{{.Base}}/static/js/search.js" defer></script>
 </body>
 </html>

@@ -17,6 +17,10 @@
   <div class="container">
     <span class="brand">dev@home</span>
     <span class="spacer"></span>
+    <div class="search-box">
+      <input type="text" id="site-search" autocomplete="off" spellcheck="false" placeholder="搜索…  /  聚焦" aria-label="搜索站点内容">
+      <div class="search-results" id="search-results"></div>
+    </div>
     <a class="link" href="{{.Base}}/">$ cd ~</a>
     <a class="link" href="{{.Base}}/#notes">notes/</a>
   </div>
@@ -42,5 +46,7 @@
     <div class="cmd">echo "© {{year}} {{if .Profile.Name}}{{.Profile.Name}}{{else}}dev@home{{end}}"</div>
   </div>
 </footer>
+<script>window.__BASE__ = "{{.Base}}";</script>
+<script src="{{.Base}}/static/js/search.js" defer></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /{$}", s.handleHome)
 	s.mux.HandleFunc("GET /posts/{slug}", s.handlePost)
 	s.mux.HandleFunc("GET /api/footprints", s.handleFootprintsAPI)
+	s.mux.HandleFunc("GET /api/search", s.handleSearchAPI)
 
 	// Admin auth.
 	s.mux.HandleFunc("GET /admin/login", s.handleLoginForm)

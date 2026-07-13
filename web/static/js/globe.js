@@ -239,11 +239,28 @@
       ctx.restore();
     });
 
-    // Hover label.
+    // Hover label — on the city layer, append the visited city's note.
     if (state.hover) {
-      ctx.fillStyle = C.text;
+      var label = state.hover;
+      var note = cityNote(state.hover);
       ctx.font = "12px 'IBM Plex Mono', monospace";
-      ctx.fillText(state.hover, 12, size - 12);
+      if (note) {
+        // Draw a translucent backdrop so the note stays readable over the map.
+        var full = label + " — " + note;
+        var tw = ctx.measureText(full).width;
+        ctx.save();
+        ctx.fillStyle = "rgba(6,19,9,0.82)";
+        ctx.fillRect(8, size - 28, Math.min(tw + 16, size - 16), 22);
+        ctx.restore();
+        ctx.fillStyle = C.amber;
+        ctx.fillText(label, 12, size - 12);
+        var lw = ctx.measureText(label + " — ").width;
+        ctx.fillStyle = C.text;
+        ctx.fillText("— " + note, 12 + ctx.measureText(label + " ").width, size - 12);
+      } else {
+        ctx.fillStyle = C.text;
+        ctx.fillText(label, 12, size - 12);
+      }
     }
   }
 
@@ -257,10 +274,21 @@
       var fp2 = state.footprints.find(function (f) { return f.code === state.country.code; });
       if (fp2) {
         var prov = fp2.provinces.find(function (p) { return p.name === state.province.name; });
-        if (prov) prov.cities.forEach(function (c) { set.add(c); });
+        if (prov) prov.cities.forEach(function (c) { set.add(c.name); });
       }
     }
     return set;
+  }
+
+  // Note for a visited city in the current province layer (empty if none).
+  function cityNote(cityName) {
+    if (state.layer !== "city" || !state.country || !state.province) return "";
+    var fp = state.footprints.find(function (f) { return f.code === state.country.code; });
+    if (!fp) return "";
+    var prov = fp.provinces.find(function (p) { return p.name === state.province.name; });
+    if (!prov) return "";
+    var city = prov.cities.find(function (c) { return c.name === cityName; });
+    return city && city.note ? city.note : "";
   }
 
   // Region hit-test via point-in-polygon in viewBox space.
@@ -487,6 +515,11 @@
     } else if (state.layer === "country") {
       var reg = pickRegion(p.x, p.y);
       if (reg && reg.drill) goCity(reg);
+    } else if (state.layer === "city") {
+      // Tap-to-select so the city note is reachable without a hover (touch).
+      var creg = pickRegion(p.x, p.y);
+      var cname = creg ? creg.name : null;
+      if (cname !== state.hover) { state.hover = cname; drawRegions(); }
     }
   }
 

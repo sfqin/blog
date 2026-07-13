@@ -11,8 +11,15 @@ type FootprintCountry struct {
 
 // FootprintProvince is a province/state with its visited cities.
 type FootprintProvince struct {
-	Name   string   `json:"name"`
-	Cities []string `json:"cities"`
+	Name   string          `json:"name"`
+	Cities []FootprintCity `json:"cities"`
+}
+
+// FootprintCity is a visited city with its optional note, shown when the
+// globe drills into the city layer and the region is hovered/selected.
+type FootprintCity struct {
+	Name string `json:"name"`
+	Note string `json:"note,omitempty"`
 }
 
 // GroupFootprints collapses flat footprint rows into the nested
@@ -21,8 +28,8 @@ func GroupFootprints(fps []Footprint) []FootprintCountry {
 	type provKey struct{ code, prov string }
 	countryOrder := []string{}
 	countryIdx := map[string]int{}
-	provOrder := map[string][]string{}   // code -> province order
-	provCities := map[provKey][]string{} // (code,prov) -> cities
+	provOrder := map[string][]string{}          // code -> province order
+	provCities := map[provKey][]FootprintCity{} // (code,prov) -> cities
 	countryName := map[string]string{}
 
 	for _, f := range fps {
@@ -42,9 +49,9 @@ func GroupFootprints(fps []Footprint) []FootprintCountry {
 				provOrder[f.CountryCode] = append(provOrder[f.CountryCode], f.Province)
 			}
 			if f.City != "" {
-				provCities[key] = append(provCities[key], f.City)
+				provCities[key] = append(provCities[key], FootprintCity{Name: f.City, Note: f.Note})
 			} else if _, ok := provCities[key]; !ok {
-				provCities[key] = []string{}
+				provCities[key] = []FootprintCity{}
 			}
 		}
 	}
