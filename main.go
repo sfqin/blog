@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"dev-home-blog/internal/export"
 	"dev-home-blog/internal/render"
 	"dev-home-blog/internal/server"
 	"dev-home-blog/internal/store"
@@ -15,20 +16,30 @@ import (
 var webFS embed.FS
 
 func main() {
-	cfg := server.Config{
-		Addr:          envOr("ADDR", ":8080"),
-		DBPath:        envOr("DB_PATH", "blog.db"),
-		AdminUsername: envOr("ADMIN_USERNAME", "admin"),
-		AdminPassword: os.Getenv("ADMIN_PASSWORD"), // sets/updates initial password when non-empty
-		Secure:        os.Getenv("SECURE_COOKIES") == "1",
+	// Subcommand dispatch: `serve` (default) runs the admin+site server;
+	// `export <dir>` renders the current DB content into a static site.
+	cmd := "serve"
+	if len(os.Args) > 1 {
+		cmd = os.Args[1]
 	}
 
-	st, err := store.Open(cfg.DBPath)
+	switch cmd {
+	case "export":
+		runExport()
+	case "serve":
+		runServe()
+	default:
+		log.Fatalf("unknown command %q (use: serve | export <dir>)", cmd)
+	}
+}
+
+// deps opens the store and builds the renderer + static FS shared by both
+// subcommands. Callers own closing the store.
+func deps(dbPath string) (*store.Store, *render.Renderer, fs.FS) {
+	st, err := store.Open(dbPath)
 	if err != nil {
 		log.Fatalf("store: %v", err)
 	}
-	defer st.Close()
-
 	tmplFS, err := fs.Sub(webFS, "web")
 	if err != nil {
 		log.Fatalf("template fs: %v", err)
@@ -37,11 +48,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("render: %v", err)
 	}
-
 	staticFS, err := fs.Sub(webFS, "web/static")
 	if err != nil {
 		log.Fatalf("static fs: %v", err)
 	}
+	return st, rnd, staticFS
+}
+
+func runServe() {
+	cfg := server.Config{
+		Addr:          envOr("ADDR", ":8080"),
+		DBPath:        envOr("DB_PATH", "blog.db"),
+		AdminUsername: envOr("ADMIN_USERNAME", "admin"),
+		AdminPassword: os.Getenv("ADMIN_PASSWORD"), // sets/updates initial password when non-empty
+		Secure:        os.Getenv("SECURE_COOKIES") == "1",
+	}
+
+	st, rnd, staticFS := deps(cfg.DBPath)
+	defer st.Close()
 
 	srv, err := server.New(cfg, st, rnd, staticFS)
 	if err != nil {
@@ -52,6 +76,22 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("serve: %v", err)
 	}
+}
+
+func runExport() {
+	outDir := "dist"
+	if len(os.Args) > 2 {
+		outDir = os.Args[2]
+	}
+	dbPath := envOr("DB_PATH", "blog.db")
+
+	st, rnd, staticFS := deps(dbPath)
+	defer st.Close()
+
+	if err := export.Run(st, rnd, staticFS, outDir); err != nil {
+		log.Fatalf("export: %v", err)
+	}
+	log.Printf("exported static site from db=%s to %s/", dbPath, outDir)
 }
 
 func envOr(key, def string) string {

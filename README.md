@@ -8,6 +8,14 @@ admin panel appears on the homepage **instantly — no rebuild, no redeploy**.
 The entire frontend (HTML templates, CSS, JS, and geo data) is compiled into a
 single Go binary via `//go:embed`, so deploying is just copying one executable.
 
+There are **two ways to run it**, and the same codebase supports both:
+
+- **Static (free, recommended):** run the admin locally, then export a static
+  site and push it — Cloudflare Pages serves it for free, reachable from China
+  and abroad. See [`DEPLOY.md`](DEPLOY.md).
+- **Dynamic (paid VPS):** run the Go service on a server so the live `/admin`
+  is reachable anywhere and edits appear instantly. See "Deploying" below.
+
 ---
 
 ## What it does
@@ -51,6 +59,32 @@ Then open:
 | `ADMIN_USERNAME` | `admin`    | Admin login name.                                             |
 | `ADMIN_PASSWORD` | *(empty)*  | Sets/updates the admin password when non-empty. Set on first run, then you can remove it. |
 | `SECURE_COOKIES` | *(off)*    | `1` to mark cookies Secure (HTTPS only). Enable in production. |
+
+### Subcommands
+
+```bash
+./blogbin serve            # (default) run the admin + public site
+./blogbin export [dir]     # render the current DB into a static site (default: ./dist)
+```
+
+---
+
+## Static export & free deploy (Cloudflare Pages)
+
+The whole public site is static-renderable: `export` renders the homepage and
+every published post to HTML, writes the footprints JSON to `dist/api/footprints`
+(the exact path the globe fetches, so the globe needs no changes), and copies
+all static assets. The admin runs only locally; the SQLite DB (with your
+password hash) never leaves your machine.
+
+```bash
+./scripts/publish.sh          # build → export ./dist → git commit → git push
+```
+
+Cloudflare Pages, connected to the repo with build command empty and output
+dir `dist`, then auto-deploys. Full step-by-step (accounts, Cloudflare setup,
+custom domain, China-access notes) is in [`DEPLOY.md`](DEPLOY.md). An optional
+GitHub Pages mirror workflow lives at `.github/workflows/pages.yml`.
 
 ---
 
