@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# publish.sh — render the local database into a static site and push it so
-# Cloudflare Pages auto-deploys.
+# publish.sh — render the local database into a root-path static site and push
+# to GitHub. Both Cloudflare Pages AND Tencent EdgeOne Pages can connect to the
+# same GitHub repo and auto-deploy on push, so one run updates both.
+#
+# For Gitee Pages (served under a sub-path), use publish-gitee.sh instead.
 #
 # Workflow:
-#   1. You write posts / edit data in the LOCAL admin (`./blogbin serve` -> /admin).
-#      That updates blog.db, which stays on your machine (it holds your admin
-#      password hash and is never committed).
-#   2. Run this script. It renders the current data to ./dist, commits it, and
-#      pushes to your GitHub remote.
-#   3. Cloudflare Pages (connected to the repo, output dir = "dist") deploys the
-#      new ./dist automatically — usually live within ~1 minute.
+#   1. Write posts / edit data in the LOCAL admin (`./blogbin serve` -> /admin).
+#      blog.db stays on your machine (holds your admin password; never committed).
+#   2. Run this script: render -> ./dist -> commit -> push to GitHub.
+#   3. Cloudflare Pages + EdgeOne Pages (output dir "dist", build command empty)
+#      deploy the new ./dist automatically, usually within ~1 minute.
 #
 # Usage:
 #   ./scripts/publish.sh                 # export + commit + push
-#   ./scripts/publish.sh "post: hello"   # same, with a custom commit message
+#   ./scripts/publish.sh "post: hello"   # custom commit message
 #   DB_PATH=/path/to/blog.db ./scripts/publish.sh
 set -euo pipefail
 
@@ -32,8 +33,8 @@ fi
 echo ">> building binary"
 go build -o ./blogbin .
 
-echo ">> exporting static site (db=$DB_PATH -> $OUT_DIR/)"
-DB_PATH="$DB_PATH" ./blogbin export "$OUT_DIR"
+echo ">> exporting root-path static site (db=$DB_PATH -> $OUT_DIR/)"
+DB_PATH="$DB_PATH" ./blogbin export "$OUT_DIR"   # BASE_URL empty -> root paths
 
 echo ">> committing $OUT_DIR"
 git add -A "$OUT_DIR"
@@ -43,12 +44,11 @@ if git diff --cached --quiet; then
 fi
 git commit -q -m "$MSG"
 
-# Push only if a remote is configured; otherwise tell the user how to add one.
 if git remote | grep -q .; then
 	branch="$(git rev-parse --abbrev-ref HEAD)"
 	echo ">> pushing to $(git remote | head -n1)/$branch"
 	git push
-	echo ">> done. Cloudflare Pages will deploy ./dist shortly."
+	echo ">> done. Cloudflare Pages + EdgeOne Pages will deploy ./dist shortly."
 else
 	echo "!! no git remote configured. Add your GitHub repo once, e.g.:" >&2
 	echo "   git remote add origin git@github.com:<you>/<repo>.git" >&2

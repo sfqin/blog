@@ -22,6 +22,7 @@ func (s *Server) writeHTML(w http.ResponseWriter, name string, data any) {
 
 // homeData is the view model for the public homepage.
 type homeData struct {
+	Base        string // URL path prefix; empty when served at domain root
 	Profile     any
 	Experiences any
 	Thoughts    any
@@ -85,7 +86,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	profile, _ := s.store.Profile()
-	s.writeHTML(w, "post.html", map[string]any{"Post": post, "Profile": profile})
+	s.writeHTML(w, "post.html", map[string]any{"Base": "", "Post": post, "Profile": profile})
 }
 
 func (s *Server) serverError(w http.ResponseWriter, what string, err error) {

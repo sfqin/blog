@@ -69,7 +69,7 @@ Then open:
 
 ---
 
-## Static export & free deploy (Cloudflare Pages)
+## Static export & free deploy (Cloudflare / EdgeOne / Gitee Pages)
 
 The whole public site is static-renderable: `export` renders the homepage and
 every published post to HTML, writes the footprints JSON to `dist/api/footprints`
@@ -78,13 +78,24 @@ all static assets. The admin runs only locally; the SQLite DB (with your
 password hash) never leaves your machine.
 
 ```bash
-./scripts/publish.sh          # build → export ./dist → git commit → git push
+./scripts/publish.sh              # root-path build → push GitHub (Cloudflare + EdgeOne auto-deploy)
+./scripts/publish-gitee.sh myblog # sub-path build (BASE_URL=/myblog) → push Gitee
 ```
 
-Cloudflare Pages, connected to the repo with build command empty and output
-dir `dist`, then auto-deploys. Full step-by-step (accounts, Cloudflare setup,
-custom domain, China-access notes) is in [`DEPLOY.md`](DEPLOY.md). An optional
-GitHub Pages mirror workflow lives at `.github/workflows/pages.yml`.
+`export` supports a `BASE_URL` prefix so the same code works at a domain root
+(Cloudflare Pages, Tencent EdgeOne Pages) or under a sub-path (Gitee Pages,
+`user.gitee.io/repo/`):
+
+```bash
+./blogbin export dist                    # root paths
+BASE_URL=/myblog ./blogbin export dist   # sub-path (Gitee)
+```
+
+Full step-by-step for all three platforms (accounts, connect-to-Git, custom
+domain, China-access + ICP notes) is in [`DEPLOY.md`](DEPLOY.md). A dated
+platform comparison (operators, free tiers, caveats) is in
+[`docs/hosting-research-2026-07-13.md`](docs/hosting-research-2026-07-13.md).
+An optional GitHub Pages mirror workflow lives at `.github/workflows/pages.yml`.
 
 ---
 

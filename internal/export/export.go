@@ -16,6 +16,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"dev-home-blog/internal/models"
 	"dev-home-blog/internal/render"
@@ -25,6 +26,7 @@ import (
 // homeVM mirrors the fields the public home.html template reads. It is kept
 // in sync with the live server's view model by field name.
 type homeVM struct {
+	Base        string
 	Profile     models.Profile
 	Experiences []models.Experience
 	Thoughts    []models.Thought
@@ -35,7 +37,12 @@ type homeVM struct {
 
 // Run renders the whole site into outDir. It reads content from st, renders
 // with rnd, and copies static assets from staticFS (the embedded web/static).
-func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir string) error {
+//
+// base is a URL path prefix (e.g. "/repo") for hosts that serve the site under
+// a sub-path such as Gitee Pages (user.gitee.io/repo/). Use "" for domain-root
+// hosts like Cloudflare Pages and EdgeOne Pages. A trailing slash is trimmed.
+func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir, base string) error {
+	base = strings.TrimSuffix(base, "/")
 	if err := resetDir(outDir); err != nil {
 		return err
 	}
@@ -68,6 +75,7 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir string) e
 
 	// 1. Homepage -> index.html
 	home, err := rnd.Render("home.html", homeVM{
+		Base:        base,
 		Profile:     profile,
 		Experiences: exps,
 		Thoughts:    thoughts,
@@ -86,7 +94,7 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir string) e
 	//    Cloudflare Pages serves foo.html at /foo, matching the /posts/{slug}
 	//    links in the templates.
 	for _, p := range posts {
-		page, err := rnd.Render("post.html", map[string]any{"Post": p, "Profile": profile})
+		page, err := rnd.Render("post.html", map[string]any{"Base": base, "Post": p, "Profile": profile})
 		if err != nil {
 			return fmt.Errorf("render post %s: %w", p.Slug, err)
 		}

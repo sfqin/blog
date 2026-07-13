@@ -84,14 +84,17 @@ func runExport() {
 		outDir = os.Args[2]
 	}
 	dbPath := envOr("DB_PATH", "blog.db")
+	// BASE_URL is a URL path prefix for sub-path hosts (e.g. Gitee Pages
+	// "/repo"); empty for domain-root hosts (Cloudflare / EdgeOne).
+	base := os.Getenv("BASE_URL")
 
 	st, rnd, staticFS := deps(dbPath)
 	defer st.Close()
 
-	if err := export.Run(st, rnd, staticFS, outDir); err != nil {
+	if err := export.Run(st, rnd, staticFS, outDir, base); err != nil {
 		log.Fatalf("export: %v", err)
 	}
-	log.Printf("exported static site from db=%s to %s/", dbPath, outDir)
+	log.Printf("exported static site from db=%s to %s/ (base=%q)", dbPath, outDir, base)
 }
 
 func envOr(key, def string) string {

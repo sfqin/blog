@@ -14,6 +14,11 @@
   if (!canvas) return;
   var ctx = canvas.getContext("2d");
 
+  // Base path prefix for all data fetches. Empty when the site is served at a
+  // domain root (Cloudflare / EdgeOne); set to e.g. "/repo" via window.__BASE__
+  // when hosted under a sub-path (Gitee Pages: user.gitee.io/repo/).
+  var BASE = (window.__BASE__ || "").replace(/\/$/, "");
+
   // ---- theme colors (mirror crt.css tokens) ----
   var C = {
     ocean1: "#0e2a1a", ocean2: "#061309",
@@ -287,6 +292,9 @@
   // Data loading
   // ============================================================
   function loadJSON(url) {
+    // Prepend BASE for absolute paths so the same build works at a domain
+    // root or under a sub-path.
+    if (BASE && url.charAt(0) === "/") url = BASE + url;
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(r.status + " " + url);
       return r.json();

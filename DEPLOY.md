@@ -1,23 +1,31 @@
-# 上线实操手册（本地后台 + Cloudflare Pages 免费部署）
+# 上线实操手册（本地后台 + 免费 Pages 多平台部署）
 
 这套方案的核心：**后台只在你自己电脑上跑**，写完文章一键"发布"，静态站被推到
-GitHub，**Cloudflare Pages 自动部署**。全程免费，国内外都能访问。
+Git，多个免费 Pages 平台自动部署。全程免费，国内外都能访问。
+
+本项目同时支持三个平台镜像：
+- **Cloudflare Pages** —— 海外/全球，连 GitHub，push 自动部署。
+- **腾讯云 EdgeOne Pages** —— 国内加速（最快），连 GitHub，push 自动部署。
+- **Gitee Pages** —— 国内备选，连 Gitee，子路径托管，免费版需手动点“更新”。
 
 ```
-你的电脑                                 云端（免费）
-┌─────────────────────────┐            ┌────────────────────────┐
-│ ./blogbin serve → /admin │            │ GitHub 仓库             │
-│   写文章 / 改数据         │  publish   │   （含渲染好的 dist/）   │
-│   存进本地 blog.db  ──────┼──────────► │        │                │
-│ ./scripts/publish.sh     │  git push  │        ▼                │
-│   渲染成 dist/ 并推送     │            │ Cloudflare Pages 自动部署│
-└─────────────────────────┘            └───────────┬────────────┘
-                                                    ▼
-                                        访客访问 https://你的域名
+你的电脑                                 云端（全免费）
+┌─────────────────────────┐   push      ┌──────────────┐   自动   Cloudflare Pages（海外）
+│ ./blogbin serve → /admin │  ─────────► │ GitHub 仓库   │ ──────► EdgeOne Pages（国内加速）
+│   写文章 / 改数据         │  publish.sh └──────────────┘
+│   存进本地 blog.db        │
+│                          │   push      ┌──────────────┐   手动点更新
+│ publish-gitee.sh ────────┼───────────► │ Gitee 仓库    │ ──────► Gitee Pages（国内备选）
+└─────────────────────────┘             └──────────────┘
+                                                 ▼
+                                     访客访问 https://你的域名
 ```
 
 > 关键点：`blog.db`（含你的后台密码）**永远只在本地**，不会上传。云端只有渲染好的
 > 静态文件。所以后台绝对安全，也不需要一台一直开机的服务器。
+>
+> 三平台的选型对比、运营方、免费额度、备案要求见
+> [`docs/hosting-research-2026-07-13.md`](docs/hosting-research-2026-07-13.md)。
 
 ---
 
@@ -25,12 +33,16 @@ GitHub，**Cloudflare Pages 自动部署**。全程免费，国内外都能访�
 
 | 项目 | 说明 | 花费 |
 |------|------|------|
-| GitHub 账号 | 你已有。存代码 + 触发部署 | 免费 |
-| Cloudflare 账号 | 免费版即可，负责部署 + 全球 CDN | 免费 |
-| 域名 | **可选**。不填就用 Cloudflare 送的 `xxx.pages.dev` 域名 | 0 或约 1–10 美元/年 |
+| GitHub 账号 | 你已有。存代码，Cloudflare + EdgeOne 都从这里触发部署 | 免费 |
+| Cloudflare 账号 | 免费版即可，海外/全球 CDN | 免费 |
+| 腾讯云账号 | 免费版即可，开通 EdgeOne Pages，国内加速 | 免费 |
+| Gitee 账号 | 免费。需实名认证才能开 Pages（国内备选） | 免费 |
+| 域名 | **可选**。不填就各用平台送的默认域名 | 0 或约 1–10 美元/年 |
 | 本机 Go | 已装（用于渲染静态站） | 免费 |
 
-> 用 Cloudflare 送的 `*.pages.dev` 域名也能在国内访问；想要更正式/更稳可自备域名。
+> 各平台送的默认域名（`*.pages.dev` / EdgeOne 默认域名 / `*.gitee.io`）国内都能访问、
+> 且**免备案**；想绑自己的域名做国内加速通常需要 ICP 备案（见调研文档）。
+> 三个平台不必都开，按需选：只要国内快 → EdgeOne；要海外稳 → Cloudflare；两者可同时。
 
 ---
 
@@ -61,21 +73,24 @@ $ ADMIN_PASSWORD='设一个你自己的密码' ./blogbin serve
 
 ---
 
-## 第 3 步：一键发布
+## 第 3 步：一键发布（Cloudflare + EdgeOne）
 
-改完内容后，跑发布脚本 —— 它会渲染静态站并推送：
+改完内容后，跑发布脚本 —— 它会渲染静态站并推送到 GitHub：
 
 ```bash
 $ ./scripts/publish.sh
 # 或带条说明： ./scripts/publish.sh "post: 我的第一篇文章"
 ```
 
-它做了三件事：把当前数据渲染成 `dist/` → `git commit` → `git push`。
-推送后 Cloudflare 会自动部署（见第 4 步的连接是一次性的）。
+它做了三件事：把当前数据渲染成 `dist/`（根路径）→ `git commit` → `git push`。
+推送后 **Cloudflare 和 EdgeOne 会各自自动部署**（它们都连着这个 GitHub 仓库，
+连接是一次性的，见第 4、5 步）。
+
+> Gitee 是子路径托管，走单独的 `publish-gitee.sh`，见第 7 步。
 
 ---
 
-## 第 4 步：在 Cloudflare Pages 连接仓库（一次性）
+## 第 4 步：在 Cloudflare Pages 连接仓库（一次性，海外/全球）
 
 1. 登录 Cloudflare → 左侧 **Workers & Pages** → **Create** → **Pages** →
    **Connect to Git**，授权并选中你刚推送的仓库。
@@ -91,21 +106,59 @@ $ ./scripts/publish.sh
 
 ---
 
-## 第 5 步（可选）：绑定自己的域名
+## 第 5 步：在腾讯云 EdgeOne Pages 连接仓库（一次性，国内加速）
 
-1. 域名注册商处把 DNS 托管给 Cloudflare（添加站点时会给你两个 NS 地址）。
-2. Cloudflare Pages 项目 → **Custom domains** → **Set up a custom domain** →
-   输入你的域名，按提示添加记录即可。证书 Cloudflare 自动签发。
+1. 登录腾讯云 → 搜索并进入 **EdgeOne Pages** → 控制台一键开通免费版。
+2. **创建项目** → **导入 Git 仓库** → 授权 GitHub 并选中同一个仓库。
+3. 构建设置（与 Cloudflare 同理）：
+   - **框架预设**：`None` / 静态
+   - **构建命令**：**留空**
+   - **输出目录**：`dist`
+4. 部署完成后会给一个 EdgeOne 默认域名，打开即可访问（国内加速）。
+
+以后同一条 `./scripts/publish.sh` 推送，EdgeOne 与 Cloudflare 一起自动更新。
+
+> ⚠️ 据调研当日信息：EdgeOne 预览域名可能有时效、国内加速区绑自定义域名需备案，
+> 具体以控制台为准（见 `docs/hosting-research-2026-07-13.md`）。
 
 ---
 
-## 日常使用（记住这一条就够）
+## 第 6 步（可选）：绑定自己的域名
+
+- **Cloudflare**：把域名 DNS 托管给 Cloudflare → Pages 项目 → **Custom domains** →
+  **Set up a custom domain** → 按提示添加记录，证书自动签发。
+- **EdgeOne**：控制台添加自定义域名 → 按提示加 CNAME；**国内加速区需 ICP 备案**。
+
+---
+
+## 第 7 步（可选）：Gitee Pages 镜像（国内备选）
+
+Gitee 免费版有两个特殊点：**子路径托管** + **不自动部署**。本项目已适配。
+
+1. 在 Gitee 新建一个**公开**仓库，例如 `myblog`；完成 Gitee **实名认证**。
+2. 本地加一个 Gitee 远端（一次性）：
+   ```bash
+   $ git remote add gitee git@gitee.com:<你的用户名>/myblog.git
+   ```
+3. 发布（`myblog` 就是仓库名，会成为 URL 子路径）：
+   ```bash
+   $ ./scripts/publish-gitee.sh myblog
+   ```
+   脚本会用 `BASE_URL=/myblog` 构建带前缀的静态站并强推到 Gitee。
+4. **手动部署**：打开 Gitee 仓库 → **服务 → Gitee Pages → 点“更新/部署”**。
+   （免费版不自动部署；自动部署需付费 Gitee Pages Pro。）
+5. 访问地址：`https://<你的用户名>.gitee.io/myblog/`。
+
+---
+
+## 日常使用（记住这个就够）
 
 ```
 本地 ./blogbin serve  →  在 /admin 写文章/改数据  →  ./scripts/publish.sh
+                                                （若用 Gitee，再跑 publish-gitee.sh 并手动点更新）
 ```
 
-发布后等约 1 分钟，线上就更新了。**本地预览是即时的**，线上是"发布后 ~1 分钟"。
+发布后等约 1 分钟，Cloudflare/EdgeOne 线上就更新了。**本地预览是即时的**。
 
 ---
 
@@ -124,9 +177,12 @@ $ ./scripts/publish.sh
 | 现象 | 处理 |
 |------|------|
 | `publish.sh` 报 "no git remote" | 先执行第 1 步的 `git remote add origin ...` |
-| 打开 pages.dev 样式/JS 丢失 | 确认 Cloudflare 输出目录填的是 `dist`、构建命令留空 |
-| 文章点进去 404 | 确认是用 `publish.sh` 发布的（它会生成 `posts/<slug>.html`） |
-| 改了内容线上没变 | 确认 `publish.sh` 有 `git push` 成功；到 Cloudflare 看部署日志 |
+| 打开 pages.dev 样式/JS 丢失 | 确认 Cloudflare/EdgeOne 输出目录填的是 `dist`、构建命令留空 |
+| 文章点进去 404 | 确认是用发布脚本发布的（会生成 `posts/<slug>.html`） |
+| 改了内容线上没变 | 确认发布脚本 `git push` 成功；到平台控制台看部署日志 |
+| Gitee 打开样式全乱/资源 404 | 确认用的是 `publish-gitee.sh <repo>`（子路径构建），且 `<repo>` 与仓库名一致 |
+| Gitee push 了但没更新 | Gitee 免费版不自动部署，需到 服务 → Gitee Pages 手动点“更新” |
+| EdgeOne/Gitee 绑域名报要备案 | 国内加速区自定义域名需 ICP 备案；先用平台默认域名（免备案） |
 | 忘记本地后台密码 | 重新 `ADMIN_PASSWORD='新密码' ./blogbin serve` 覆盖即可 |
 | 想要 github.io 镜像 | 仓库已含可选的 `.github/workflows/pages.yml`，按里面注释启用 |
 
