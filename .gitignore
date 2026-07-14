@@ -20,3 +20,10 @@
 
 # NOTE: /dist is intentionally NOT ignored — the rendered static site is
 # committed and pushed so Cloudflare Pages / GitHub Pages can serve it.
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
