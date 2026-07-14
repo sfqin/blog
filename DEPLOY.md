@@ -227,7 +227,7 @@ SUBPATH=/blog    ./scripts/publish-all.sh                   # 覆盖子路径（
 
 | 现象 | 处理 |
 |------|------|
-| `publish-all.sh` 报 "no git remote" | 先加远程：`git remote add origin git@github.com:sfqin/blog.git`、`git remote add gitee git@gitee.com:qzcsu/blog.git` |
+| Cloudflare/EdgeOne 构建失败，日志出现 `npm install` / `Exit handler never called` | 平台误把项目当 Node 项目去装依赖。本项目是**纯静态站**：确认**构建命令留空、输出目录填 `dist`**；`package.json` 已移到 `scripts/` 下，仓库根不应再有它（若手动加回会重现此错）。
 | 打开 pages.dev 样式/JS 丢失 | 确认 Cloudflare/EdgeOne 输出目录填的是 `dist`、构建命令留空 |
 | 文章点进去 404 | 确认是用发布脚本发布的（会生成 `posts/<slug>.html`） |
 | 改了内容线上没变 | 确认 `publish-all.sh` 推送成功；到平台控制台看部署日志 |

@@ -9,8 +9,11 @@
 *.db-shm
 *.db-wal
 
-# Node (only needed to (re)generate geo data / run tests)
+# Node (only needed to (re)generate geo data / run tests). package.json lives
+# under scripts/ (NOT the repo root) so Cloudflare/EdgeOne Pages treat this as a
+# pure static site and skip `npm install`.
 /node_modules/
+/scripts/node_modules/
 
 # OS / editor
 .DS_Store

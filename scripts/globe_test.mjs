@@ -1,3 +1,8 @@
+// Local-only puppeteer smoke test for the globe. Its lone dependency
+// (puppeteer-core) lives in this scripts/ dir — run `npm install` HERE first:
+//   cd scripts && npm install && node globe_test.mjs
+// (package.json is kept out of the repo root so Cloudflare/EdgeOne Pages treat
+//  the project as a pure static site and skip npm install; see DEPLOY.md.)
 import puppeteer from "puppeteer-core";
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
