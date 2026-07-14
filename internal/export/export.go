@@ -33,6 +33,7 @@ type homeVM struct {
 	Projects    []models.Project
 	Posts       []models.Post
 	Footprints  []models.Footprint
+	Moments     []models.Moment
 }
 
 // Run renders the whole site into outDir. It reads content from st, renders
@@ -72,6 +73,10 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir, base str
 	if err != nil {
 		return fmt.Errorf("footprints: %w", err)
 	}
+	moments, err := st.Moments()
+	if err != nil {
+		return fmt.Errorf("moments: %w", err)
+	}
 
 	// 1. Homepage -> index.html
 	home, err := rnd.Render("home.html", homeVM{
@@ -82,6 +87,7 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir, base str
 		Projects:    projects,
 		Posts:       posts,
 		Footprints:  footprints,
+		Moments:     moments,
 	})
 	if err != nil {
 		return fmt.Errorf("render home: %w", err)
@@ -122,6 +128,7 @@ func Run(st *store.Store, rnd *render.Renderer, staticFS fs.FS, outDir, base str
 		Thoughts:    thoughts,
 		Projects:    projects,
 		Posts:       posts,
+		Moments:     moments,
 	}, base)
 	idxBuf, err := json.Marshal(index)
 	if err != nil {

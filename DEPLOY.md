@@ -245,3 +245,49 @@ SUBPATH=/blog    ./scripts/publish-all.sh                   # 覆盖子路径（
 如果你以后更看重"网页后台随处可访问 + 国内最稳"，本仓库也保留了把整套 Go 服务
 部署到服务器的方案，见 `README.md` 的 "Deploying" 一节与 `Caddyfile` /
 `s_blog.service` / `scripts/deploy.sh`。两条路的代码是同一套，可随时切换。
+
+---
+
+## 瞬间（moments）图片 / 视频托管：Cloudflare R2
+
+> 记录于 2026-07-14。「瞬间」板块用于发照片 / 短视频 + 文字（也可纯文字当日记）。
+
+**为什么不直接把图片放进仓库？** 免费 Pages 平台单文件多有 25MB 限制，图片/视频
+也会把 git 仓库越撑越大、发布越来越慢。所以站点**只在数据库里存外链 URL**，媒体本身
+放对象存储。这里选 **Cloudflare R2**：免费额度 10GB 存储、**出站流量全免费**（无
+「流量费」这项，看图的人再多也不额外收费），且和已有的 Cloudflare 账号打通。
+
+### 一次性设置（你在 Cloudflare 控制台操作）
+
+1. 登录 Cloudflare → 左侧 **R2** → **Create bucket**，名字如 `blog-media`，位置选
+   Automatic 即可。
+2. 进入该 bucket → **Settings** → **Public access** → 开启 **R2.dev subdomain**
+   （会给一个形如 `https://pub-xxxx.r2.dev` 的公开域名）。
+   - 想更快/更稳可选：**Custom Domain** 绑定自己在 Cloudflare 托管的域名（如
+     `img.你的域名`），走 Cloudflare CDN，国内外都比 `r2.dev` 直连稳。
+3. 上传照片/视频：bucket 页面直接拖拽上传，或用 `rclone` / `aws s3` 客户端批量传。
+4. 点开某个文件 → 复制它的公开 URL（`https://pub-xxxx.r2.dev/2026/kl-night.jpg`
+   这种）。
+
+### 在后台发一条「瞬间」
+
+1. `http://localhost:8088/admin/moments` → **+ new**。
+2. **place 地点**、**date 日期**、**caption 文字说明** 按需填。
+3. **media** 文本框：把上一步复制的公开链接**每行粘一个**，可混放图片和视频。
+   - 图片：`.jpg/.png/.webp/.gif` 等 → 渲染成缩略图，点开是灯箱大图，可左右翻。
+   - 视频：`.mp4/.webm/.mov/.m4v/.ogv` → 自动识别，页面内直接播放（带原生控件）。
+   - media 全部留空 = 纯文字瞬间（当日记用）。
+4. save 后主页 `#moments` 立即出现；发布时随静态站一起导出，链接指向 R2，看图的人
+   直接从 Cloudflare 拿图，不占 Pages 流量。
+
+### 让图片加载更快的几个点
+
+- 上传前把照片压到「长边 ~2000px、JPEG/WebP」再传，手机看足够清晰、加载还快。
+- 优先用 **Custom Domain**（走 Cloudflare CDN）而不是裸 `r2.dev`。
+- 视频尽量短、优先 `.mp4`（H.264）兼容性最好；长视频建议传到 B 站/YouTube 再贴
+  链接（本板块目前是直链内嵌播放，不做第三方播放器解析）。
+
+> 备选图床：七牛云 / 又拍云（国内更快，但有免费额度门槛与实名要求）、GitHub 仓库
+> 直链（小图可用、大文件不合适）。换任何图床都一样——只要能拿到公开直链，粘进 media
+> 即可，站点侧无需改动。
+

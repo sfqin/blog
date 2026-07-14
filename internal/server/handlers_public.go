@@ -29,6 +29,7 @@ type homeData struct {
 	Projects    any
 	Posts       any
 	Footprints  any
+	Moments     any
 }
 
 // handleHome renders the single-page public site from live DB content.
@@ -63,6 +64,11 @@ func (s *Server) handleHome(w http.ResponseWriter, r *http.Request) {
 		s.serverError(w, "footprints", err)
 		return
 	}
+	moments, err := s.store.Moments()
+	if err != nil {
+		s.serverError(w, "moments", err)
+		return
+	}
 	s.writeHTML(w, "home.html", homeData{
 		Profile:     profile,
 		Experiences: exps,
@@ -70,6 +76,7 @@ func (s *Server) handleHome(w http.ResponseWriter, r *http.Request) {
 		Projects:    projects,
 		Posts:       posts,
 		Footprints:  footprints,
+		Moments:     moments,
 	})
 }
 

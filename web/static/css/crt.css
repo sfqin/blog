@@ -58,6 +58,9 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .crt-scanlines { animation: none; }
+  .moment.moment-flash { animation: none; }
+  .lightbox-track, .lightbox-viewport { transition: none !important; }
+  .globe-moment-links { animation: none; }
 }
 
 a { color: var(--green); text-decoration: none; }
@@ -214,6 +217,45 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--text); }
   border-radius: 0 4px 4px 0;
 }
 .thought .meta { color: var(--muted); font-size: 12px; margin-top: 8px; }
+/* Long thoughts collapse in-place (JS adds .collapsed when body overflows). */
+.thought-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.thought-body.collapsed {
+  max-height: 168px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 108px, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 108px, transparent 100%);
+}
+.thought-toggle {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--amber);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.thought-toggle:hover { text-decoration: underline; }
+/* Floating 收起 button: appears while any thought is expanded, so a long one
+   can be collapsed without scrolling to its bottom. */
+.thought-collapse-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--amber);
+  background: rgba(6, 19, 9, 0.9);
+  border: 1px solid var(--amber);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+.thought-collapse-float:hover { background: rgba(251, 191, 36, 0.18); }
+.thought-collapse-float:active { transform: scale(0.96); }
 
 /* --- Project grid --- */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
@@ -239,8 +281,20 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--text); }
   border-bottom: 1px dashed var(--line);
 }
 .note-row .date { color: var(--muted); font-size: 12px; min-width: 92px; }
-.note-row .title { color: var(--green); flex: 1; }
-.note-row .tags-inline { color: var(--muted); font-size: 11px; }
+.note-row .title { color: var(--green); flex: 1 1 auto; min-width: 0; }
+/* Tags sit in their own column; many tags clip to one line instead of
+   shoving the title around. On narrow screens they wrap under the title. */
+.note-row .tags-inline {
+  flex: 0 1 auto;
+  max-width: 42%;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+.note-row .tag-chip { margin-left: 6px; }
 
 /* --- Footprint globe --- */
 #footprint { text-align: center; }
@@ -249,9 +303,58 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--text); }
 .globe-breadcrumb .sep { color: var(--line); margin: 0 6px; }
 #globe-canvas { display: block; margin: 0 auto; cursor: grab; touch-action: none; }
 #globe-canvas:active { cursor: grabbing; }
-.globe-back { text-align: left; margin-bottom: 8px; }
+/* Stage wraps the canvas so the back button can float in its top-left corner. */
+.globe-stage { position: relative; display: inline-block; }
+.globe-back-btn {
+  position: absolute; top: 8px; left: 8px; z-index: 3;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--amber); background: rgba(6,19,9,0.82);
+  border: 1px solid var(--amber); border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+  box-shadow: 0 0 12px rgba(251,191,36,0.35);
+  -webkit-tap-highlight-color: transparent;
+}
+.globe-back-btn:hover { background: rgba(251,191,36,0.18); }
+.globe-back-btn:active { transform: scale(0.96); }
 .globe-hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
 .globe-stats { color: var(--amber); font-size: 13px; margin-top: 8px; }
+/* Linked-瞬间 panel shown when a clicked city/province links to moments. Framed
+   as a compact card so multiple rows read cleanly on a phone. Each row is a link
+   the user taps to jump into the feed (no auto-jump). */
+.globe-moment-links {
+  margin: 14px auto 0; width: 100%; max-width: 440px; text-align: left;
+  background: rgba(6,19,9,0.55);
+  border: 1px solid var(--line); border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 7px;
+  animation: gml-in 0.22s ease-out;
+}
+@keyframes gml-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.globe-moment-links .gml-head {
+  font-family: var(--font-mono); font-size: 12px;
+  padding-bottom: 7px; margin-bottom: 1px; border-bottom: 1px dashed var(--line);
+}
+.globe-moment-links .gml-count { color: var(--muted); }
+.globe-moment-links .gml-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.4;
+  color: var(--text); background: rgba(13,20,13,0.7);
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: 9px 11px; cursor: pointer; text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.globe-moment-links .gml-arrow { color: var(--amber); flex: none; }
+.globe-moment-links .gml-cap { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.globe-moment-links .gml-item:hover { border-color: var(--amber); background: rgba(251,191,36,0.1); color: var(--amber); }
+.globe-moment-links .gml-item:active { transform: scale(0.99); }
+/* Brief highlight when the globe jumps you to a moment, so it's easy to spot. */
+@keyframes moment-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(251,191,36,0.0); border-left-color: var(--green); }
+  20%  { box-shadow: 0 0 22px 2px rgba(251,191,36,0.55); border-left-color: var(--amber); }
+  100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.0); border-left-color: var(--green); }
+}
+.moment.moment-flash { animation: moment-flash 1.8s ease-out; }
 
 /* --- Article body (rendered markdown) --- */
 .article { max-width: 760px; }
@@ -273,6 +376,101 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--text); }
 .article img { max-width: 100%; border-radius: 6px; }
 .article a { text-decoration: underline; }
 
+/* --- Moments (瞬间) photo / short-video feed --- */
+.moments { max-width: 720px; }
+.moment {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border-radius: 0 4px 4px 0;
+}
+.moment-meta { display: flex; gap: 12px; align-items: baseline; font-size: 12px; margin-bottom: 8px; }
+.moment-place { color: var(--green); }
+.moment-date { color: var(--muted); }
+.moment-caption { color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.moment-media { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.moment-media[data-count="1"] { grid-template-columns: 1fr; }
+.moment-media[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+.moment-item { width: 100%; border-radius: 6px; border: 1px solid var(--line); display: block; background: var(--bg); }
+/* Thumbnails in multi-media grids crop to squares; a lone image shows in full. */
+.moment-media:not([data-count="1"]) .moment-item { aspect-ratio: 1 / 1; object-fit: cover; }
+.moment-media[data-count="1"] .moment-item { max-height: 480px; object-fit: contain; }
+img.moment-item { cursor: zoom-in; transition: border-color 0.15s; }
+img.moment-item:hover { border-color: rgba(74,222,128,0.5); }
+/* Embedded players (Bilibili / YouTube) always take a full-width row: a 16:9
+   frame with a small "open on site" fallback link BELOW it, so nothing ever
+   overlaps the video controls. */
+.moment-embed { grid-column: 1 / -1; padding: 0; border: 0; background: transparent; }
+/* Neutralize the square-thumbnail grid rule (higher specificity) for embeds. */
+.moment-media:not([data-count="1"]) .moment-item.moment-embed { aspect-ratio: auto; object-fit: fill; }
+.moment-embed-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000; border: 1px solid var(--line); border-radius: 6px; }
+.moment-embed-frame iframe { width: 100%; height: 100%; display: block; border: 0; }
+.moment-embed-open {
+  display: inline-block; margin-top: 6px;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1;
+  color: var(--muted); text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.moment-embed-open:hover { color: var(--amber); }
+
+/* --- Lightbox (full-size image viewer) --- */
+.lightbox {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(3, 8, 4, 0.92);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.lightbox[hidden] { display: none; }
+body.lightbox-open { overflow: hidden; }
+/* Carousel model: a full-width viewport clips a horizontal track of equal-width
+   slides. moments.js translates the track (in px) and toggles the transition so
+   it can follow the finger 1:1 while dragging and glide on release. */
+.lightbox-viewport { width: 100vw; height: 100%; overflow: hidden; will-change: transform; }
+.lightbox-track { display: flex; height: 100%; will-change: transform; }
+.lightbox-slide {
+  flex: 0 0 100vw; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-img {
+  max-width: 92vw; max-height: 86vh; object-fit: contain;
+  border-radius: 4px; box-shadow: 0 0 30px rgba(74,222,128,0.25);
+  user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
+}
+/* Transient "reached the end" toast shown at the first/last image. */
+.lightbox-hint {
+  position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%);
+  z-index: 3; pointer-events: none;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
+  color: var(--amber); background: rgba(6,19,9,0.9);
+  border: 1px solid var(--amber); border-radius: 6px; padding: 6px 14px;
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.lightbox-hint.lb-hint-show { opacity: 1; }
+.lightbox-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--amber); background: rgba(6,19,9,0.82);
+  border: 1px solid var(--amber); border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lightbox-close:hover { background: rgba(251,191,36,0.18); }
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  font-family: var(--font-mono); font-size: 28px; line-height: 1;
+  color: var(--green); background: rgba(6,19,9,0.7);
+  border: 1px solid var(--line); border-radius: 8px;
+  width: 44px; height: 56px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lightbox-nav:hover { border-color: var(--green); box-shadow: var(--glow); }
+.lightbox-nav.is-end { opacity: 0.3; }
+.lightbox-prev { left: 12px; }
+.lightbox-next { right: 12px; }
+.lightbox-nav[hidden] { display: none; }
+
 /* --- Footer --- */
 footer { padding: 32px 0; color: var(--muted); font-size: 12px; text-align: center; border-bottom: none; }
 footer .cmd { justify-content: center; }
@@ -283,6 +481,18 @@ footer .cmd { justify-content: center; }
   .nav .container { height: auto; padding: 8px 16px; }
   .grid { grid-template-columns: 1fr; }
   .note-row { flex-wrap: wrap; }
+  /* On phones let all tags show, wrapping full-width under the title. */
+  .note-row .tags-inline {
+    flex-basis: 100%;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+    margin-top: 4px;
+  }
+  .note-row .tag-chip { margin: 0 8px 0 0; }
+  .moments { max-width: 100%; }
+  .moment-media, .moment-media[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+  .lightbox-nav { width: 38px; height: 48px; font-size: 22px; }
   .search-box { order: 10; flex-basis: 100%; }
   .search-box #site-search, .search-box #site-search:focus { width: 100%; }
   .search-results { width: 100%; }

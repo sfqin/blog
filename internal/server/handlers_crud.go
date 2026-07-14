@@ -19,6 +19,7 @@ var crudMeta = map[string]struct {
 	"projects":    {"Projects", "projects_list.html", "projects_form.html"},
 	"posts":       {"Posts", "posts_list.html", "posts_form.html"},
 	"footprints":  {"Footprints", "footprints_list.html", "footprints_form.html"},
+	"moments":     {"Moments", "moments_list.html", "moments_form.html"},
 }
 
 // crudList returns a handler that lists all items of a collection.
@@ -59,11 +60,22 @@ func (s *Server) crudEditForm(name string) http.HandlerFunc {
 			}
 			isNew = false
 		}
+		data := map[string]any{"Item": item, "IsNew": isNew}
+		// Footprints can link to a moment; the form needs the list to populate
+		// its dropdown.
+		if name == "footprints" {
+			moments, err := s.store.Moments()
+			if err != nil {
+				s.serverError(w, "footprints form moments", err)
+				return
+			}
+			data["Moments"] = moments
+		}
 		s.writeHTML(w, meta.FormTmpl, adminPage{
 			Title:  meta.Title,
 			Active: name,
 			CSRF:   s.ensureCSRF(w, r),
-			Data:   map[string]any{"Item": item, "IsNew": isNew},
+			Data:   data,
 		})
 	}
 }
@@ -133,6 +145,8 @@ func (s *Server) listItems(name string) (any, error) {
 		return s.store.AllPosts()
 	case "footprints":
 		return s.store.Footprints()
+	case "moments":
+		return s.store.Moments()
 	}
 	return nil, nil
 }
@@ -149,6 +163,8 @@ func (s *Server) getItem(name string, id int64) (any, error) {
 		return s.store.Post(id)
 	case "footprints":
 		return s.store.Footprint(id)
+	case "moments":
+		return s.store.Moment(id)
 	}
 	return nil, nil
 }
@@ -165,6 +181,8 @@ func (s *Server) deleteItem(name string, id int64) error {
 		return s.store.DeletePost(id)
 	case "footprints":
 		return s.store.DeleteFootprint(id)
+	case "moments":
+		return s.store.DeleteMoment(id)
 	}
 	return nil
 }
@@ -185,6 +203,9 @@ func (s *Server) createFromForm(name string, r *http.Request) error {
 		return err
 	case "footprints":
 		_, err := s.store.CreateFootprint(footprintFromForm(r))
+		return err
+	case "moments":
+		_, err := s.store.CreateMoment(momentFromForm(r))
 		return err
 	}
 	return nil
@@ -212,6 +233,10 @@ func (s *Server) updateFromForm(name string, id int64, r *http.Request) error {
 		f := footprintFromForm(r)
 		f.ID = id
 		return s.store.UpdateFootprint(f)
+	case "moments":
+		m := momentFromForm(r)
+		m.ID = id
+		return s.store.UpdateMoment(m)
 	}
 	return nil
 }
@@ -265,13 +290,32 @@ func postFromForm(r *http.Request) models.Post {
 }
 
 func footprintFromForm(r *http.Request) models.Footprint {
+	// moment_ids arrives as repeated checkbox values; join into the stored CSV.
+	ids := make([]string, 0, len(r.PostForm["moment_ids"]))
+	for _, v := range r.PostForm["moment_ids"] {
+		if v = strings.TrimSpace(v); v != "" && v != "0" {
+			ids = append(ids, v)
+		}
+	}
 	return models.Footprint{
 		CountryCode: strings.ToUpper(strings.TrimSpace(r.PostForm.Get("country_code"))),
 		CountryName: r.PostForm.Get("country_name"),
 		Province:    r.PostForm.Get("province"),
 		City:        r.PostForm.Get("city"),
 		Note:        r.PostForm.Get("note"),
+		MomentIDs:   strings.Join(ids, ","),
 		SortOrder:   atoi(r.PostForm.Get("sort_order")),
+	}
+}
+
+func momentFromForm(r *http.Request) models.Moment {
+	// Normalize newlines so MediaList() splits reliably (browsers send CRLF).
+	media := strings.ReplaceAll(r.PostForm.Get("media"), "\r\n", "\n")
+	return models.Moment{
+		Caption: r.PostForm.Get("caption"),
+		Media:   strings.TrimSpace(media),
+		Place:   strings.TrimSpace(r.PostForm.Get("place")),
+		Date:    r.PostForm.Get("date"),
 	}
 }
 

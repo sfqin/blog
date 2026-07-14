@@ -70,9 +70,22 @@ CREATE TABLE IF NOT EXISTS footprints (
     province     TEXT NOT NULL DEFAULT '',   -- province / state / prefecture
     city         TEXT NOT NULL DEFAULT '',   -- city / district
     note         TEXT NOT NULL DEFAULT '',
+    moment_ids   TEXT NOT NULL DEFAULT '', -- comma-separated linked moment IDs ('' = none)
     sort_order   INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_footprints_country ON footprints (country_code);
+
+-- Moments: $ feh moments/*  — photo / short-video feed with captions.
+-- Media is hosted externally (Cloudflare R2) and referenced by URL; one URL per
+-- line in `media`. Empty media = a plain text diary entry.
+CREATE TABLE IF NOT EXISTS moments (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    caption TEXT NOT NULL DEFAULT '',
+    media   TEXT NOT NULL DEFAULT '',   -- one media URL per line (R2)
+    place   TEXT NOT NULL DEFAULT '',   -- optional location
+    date    TEXT NOT NULL DEFAULT (date('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_moments_date ON moments (date DESC);
 
 -- Single admin account.
 CREATE TABLE IF NOT EXISTS admin_user (

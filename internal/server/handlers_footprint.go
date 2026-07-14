@@ -49,12 +49,18 @@ func (s *Server) handleSearchAPI(w http.ResponseWriter, r *http.Request) {
 		s.serverError(w, "search posts", err)
 		return
 	}
+	moments, err := s.store.Moments()
+	if err != nil {
+		s.serverError(w, "search moments", err)
+		return
+	}
 	out := models.BuildSearchIndex(models.SearchInput{
 		Profile:     profile,
 		Experiences: exps,
 		Thoughts:    thoughts,
 		Projects:    projects,
 		Posts:       posts,
+		Moments:     moments,
 	}, "")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")

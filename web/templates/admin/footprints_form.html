@@ -45,6 +45,22 @@
     <label>note 备注（选填）</label>
     <input type="text" name="note" value="{{if not $isNew}}{{$it.Note}}{{end}}" placeholder="可留空 optional">
   </div>
+  <div class="field">
+    <label>linked moments 关联瞬间（选填，可多选，下钻到该城市时可跳转）</label>
+    {{if .Data.Moments}}
+    <div class="checkbox-list">
+      {{range .Data.Moments}}
+      <label class="checkbox-item">
+        <input type="checkbox" name="moment_ids" value="{{.ID}}" {{if and (not $isNew) ($it.LinksMoment .ID)}}checked{{end}}>
+        <span>{{.Date}} · {{if .Place}}{{.Place}} · {{end}}{{.Caption}}</span>
+      </label>
+      {{end}}
+    </div>
+    <div class="hint">在地球下钻到「城市」层级时，点击该城市可跳到所关联的瞬间（可关联多条）。</div>
+    {{else}}
+    <div class="hint">还没有瞬间可关联，先到 <a href="/admin/moments">/admin/moments</a> 添加。</div>
+    {{end}}
+  </div>
   <div class="actions-bar">
     <button class="btn-primary" type="submit">save</button>
     <a class="btn-ghost" style="text-decoration:none" href="/admin/footprints">cancel</a>

@@ -26,8 +26,9 @@
     <a class="link" href="#experience">经历</a>
     <a class="link" href="#thoughts">思考</a>
     <a class="link" href="#projects">项目</a>
-    <a class="link" href="#footprint">足迹</a>
     <a class="link" href="#notes">笔记</a>
+    <a class="link" href="#footprint">足迹</a>
+    <a class="link" href="#moments">瞬间</a>
   </div>
 </nav>
 
@@ -88,7 +89,8 @@
     {{if .Thoughts}}
       {{range .Thoughts}}
       <div class="thought">
-        <div>{{.Body}}</div>
+        <div class="thought-body">{{.Body}}</div>
+        <button class="thought-toggle" type="button" hidden>展开 ▾</button>
         <div class="meta">{{if .Topic}}[{{.Topic}}] {{end}}{{.Date}}</div>
       </div>
       {{end}}
@@ -122,17 +124,6 @@
   </div>
 </section>
 
-<!-- footprint globe -->
-<section id="footprint">
-  <div class="container">
-    <div class="cmd">./modules/footprint --render</div>
-    <div class="globe-back"><a id="globe-cd-up" style="display:none">$ cd ..</a></div>
-    <div class="globe-breadcrumb" id="globe-breadcrumb">~/globe</div>
-    <canvas id="globe-canvas" width="440" height="440"></canvas>
-    <div class="globe-stats" id="globe-stats"></div>
-  </div>
-</section>
-
 <!-- notes / blog -->
 <section id="notes">
   <div class="container">
@@ -142,11 +133,63 @@
       <div class="note-row">
         <span class="date">{{.Date}}</span>
         <a class="title" href="{{$.Base}}/posts/{{.Slug}}">{{.Title}}</a>
-        <span class="tags-inline">{{range .TagList}}#{{.}} {{end}}</span>
+        <span class="tags-inline">{{range .TagList}}<span class="tag-chip">#{{.}}</span>{{end}}</span>
       </div>
       {{end}}
     {{else}}
       <p class="empty">// 暂无文章（/admin/posts）</p>
+    {{end}}
+  </div>
+</section>
+
+<!-- footprint globe -->
+<section id="footprint">
+  <div class="container">
+    <div class="cmd">./modules/footprint --render</div>
+    <div class="globe-breadcrumb" id="globe-breadcrumb">~/globe</div>
+    <div class="globe-stage">
+      <button id="globe-cd-up" class="globe-back-btn" style="display:none" aria-label="返回上一级">← 返回上一级</button>
+      <canvas id="globe-canvas" width="440" height="440"></canvas>
+    </div>
+    <div class="globe-stats" id="globe-stats"></div>
+    <div id="globe-moment-links" class="globe-moment-links" style="display:none"></div>
+  </div>
+</section>
+
+<!-- moments -->
+<section id="moments">
+  <div class="container">
+    <div class="cmd">feh moments/*</div>
+    {{if .Moments}}
+      <div class="moments">
+        {{range .Moments}}
+        <article class="moment" id="moment-{{.ID}}">
+          <div class="moment-meta">
+            {{if .Place}}<span class="moment-place">{{.Place}}</span>{{end}}
+            {{if .Date}}<span class="moment-date">{{.Date}}</span>{{end}}
+          </div>
+          {{if .Caption}}<div class="moment-caption">{{.Caption}}</div>{{end}}
+          {{with .MediaList}}
+          <div class="moment-media" data-count="{{len .}}">
+            {{range .}}
+            {{if .IsEmbed}}
+              <div class="moment-item moment-embed">
+                <div class="moment-embed-frame"><iframe src="{{.URL}}" loading="lazy" allow="fullscreen; encrypted-media; picture-in-picture" allowfullscreen scrolling="no" frameborder="0" referrerpolicy="no-referrer"></iframe></div>
+                {{if .WatchURL}}<a class="moment-embed-open" href="{{.WatchURL}}" target="_blank" rel="noopener">{{if eq .Provider "bilibili"}}在 B 站打开{{else if eq .Provider "youtube"}}在 YouTube 打开{{else}}在原站打开{{end}} ↗</a>{{end}}
+              </div>
+            {{else if .IsVideo}}
+              <video class="moment-item" src="{{.URL}}" controls preload="metadata" playsinline></video>
+            {{else}}
+              <img class="moment-item" src="{{.URL}}" alt="" loading="lazy" data-full="{{.URL}}">
+            {{end}}
+            {{end}}
+          </div>
+          {{end}}
+        </article>
+        {{end}}
+      </div>
+    {{else}}
+      <p class="empty">// 暂无瞬间（/admin/moments）</p>
     {{end}}
   </div>
 </section>
@@ -159,6 +202,8 @@
 
 <script>window.__BASE__ = "{{.Base}}";</script>
 <script src="{{.Base}}/static/js/globe.js" defer></script>
+<script src="{{.Base}}/static/js/thoughts.js" defer></script>
+<script src="{{.Base}}/static/js/moments.js" defer></script>
 <script src="{{.Base}}/static/js/search.js" defer></script>
 </body>
 </html>

@@ -17,9 +17,12 @@ type FootprintProvince struct {
 
 // FootprintCity is a visited city with its optional note, shown when the
 // globe drills into the city layer and the region is hovered/selected.
+// MomentIDs links the city to zero or more moments (many-to-many) so the globe
+// can offer jumps into the 瞬间 feed.
 type FootprintCity struct {
-	Name string `json:"name"`
-	Note string `json:"note,omitempty"`
+	Name      string  `json:"name"`
+	Note      string  `json:"note,omitempty"`
+	MomentIDs []int64 `json:"momentIds,omitempty"`
 }
 
 // GroupFootprints collapses flat footprint rows into the nested
@@ -49,7 +52,7 @@ func GroupFootprints(fps []Footprint) []FootprintCountry {
 				provOrder[f.CountryCode] = append(provOrder[f.CountryCode], f.Province)
 			}
 			if f.City != "" {
-				provCities[key] = append(provCities[key], FootprintCity{Name: f.City, Note: f.Note})
+				provCities[key] = append(provCities[key], FootprintCity{Name: f.City, Note: f.Note, MomentIDs: f.MomentIDList()})
 			} else if _, ok := provCities[key]; !ok {
 				provCities[key] = []FootprintCity{}
 			}

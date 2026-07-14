@@ -66,5 +66,5 @@ func (s *Server) seedAdmin() error {
 
 // ListenAndServe starts the HTTP server.
 func (s *Server) ListenAndServe() error {
-	return http.ListenAndServe(s.cfg.Addr, s.logRequests(s.mux))
+	return http.ListenAndServe(s.cfg.Addr, s.logRequests(s.gzipStatic(s.mux)))
 }

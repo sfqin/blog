@@ -22,6 +22,7 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	projects, _ := s.store.Projects()
 	posts, _ := s.store.AllPosts()
 	footprints, _ := s.store.Footprints()
+	moments, _ := s.store.Moments()
 	profile, _ := s.store.Profile()
 
 	counts := map[string]int{
@@ -30,6 +31,7 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
 		"projects":    len(projects),
 		"posts":       len(posts),
 		"footprints":  len(footprints),
+		"moments":     len(moments),
 	}
 	s.writeHTML(w, "dashboard.html", adminPage{
 		Title:  "Dashboard",

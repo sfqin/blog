@@ -25,6 +25,7 @@ type SearchInput struct {
 	Thoughts    []Thought
 	Projects    []Project
 	Posts       []Post
+	Moments     []Moment
 }
 
 // BuildSearchIndex flattens all public content into a list of SearchDocs.
@@ -32,7 +33,7 @@ type SearchInput struct {
 // for domain-root hosts) applied to every URL so links work under any host.
 func BuildSearchIndex(in SearchInput, base string) []SearchDoc {
 	base = strings.TrimSuffix(base, "/")
-	docs := make([]SearchDoc, 0, 8+len(in.Experiences)+len(in.Thoughts)+len(in.Projects)+len(in.Posts))
+	docs := make([]SearchDoc, 0, 8+len(in.Experiences)+len(in.Thoughts)+len(in.Projects)+len(in.Posts)+len(in.Moments))
 
 	if in.Profile.Name != "" || in.Profile.AboutMD != "" {
 		docs = append(docs, SearchDoc{
@@ -83,6 +84,17 @@ func BuildSearchIndex(in SearchInput, base string) []SearchDoc {
 			URL:   base + "/posts/" + p.Slug,
 			Date:  p.Date,
 			Badge: "文章",
+		})
+	}
+	for _, m := range in.Moments {
+		docs = append(docs, SearchDoc{
+			Type:  "moment",
+			Title: truncateRunes(m.Caption, 24),
+			Text:  joinNonEmpty(" ", m.Place, m.Caption),
+			Tags:  m.Place,
+			URL:   base + "/#moments",
+			Date:  m.Date,
+			Badge: "瞬间",
 		})
 	}
 	return docs

@@ -34,6 +34,7 @@ func (s *Server) routes() {
 	s.registerCRUD("projects")
 	s.registerCRUD("posts")
 	s.registerCRUD("footprints")
+	s.registerCRUD("moments")
 }
 
 // registerCRUD wires the standard admin CRUD routes for a collection name.

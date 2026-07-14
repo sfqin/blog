@@ -71,6 +71,29 @@
 .field.inline label { margin: 0; }
 .field.inline input[type=checkbox] { width: auto; accent-color: var(--green); }
 
+/* Multi-select checkbox list (e.g. footprint → moments links). */
+.checkbox-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  padding: 6px;
+}
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.checkbox-item:hover { background: var(--panel-2); }
+.checkbox-item input[type=checkbox] { width: auto; margin-top: 2px; accent-color: var(--green); flex: none; }
+.checkbox-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
 .actions-bar { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
