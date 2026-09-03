@@ -144,17 +144,21 @@ func (s *Server) Run() error {
 	// Reason we stopped, for a friendlier log line.
 	stop := make(chan string, 1)
 
-	// Idle watchdog: quit once no page has pinged for idleTimeout.
-	go func() {
-		t := time.NewTicker(watchdogTick)
-		defer t.Stop()
-		for range t.C {
-			if s.idleFor() > idleTimeout {
-				stop <- "空闲超时（所有网页已关闭）"
-				return
+	// Idle watchdog: quit once no page has pinged for idleTimeout. Skipped in
+	// server mode, where the process must stay up as a daemon regardless of
+	// whether any browser tab is currently open.
+	if !s.cfg.ServerMode {
+		go func() {
+			t := time.NewTicker(watchdogTick)
+			defer t.Stop()
+			for range t.C {
+				if s.idleFor() > idleTimeout {
+					stop <- "空闲超时（所有网页已关闭）"
+					return
+				}
 			}
-		}
-	}()
+		}()
+	}
 
 	// OS signals: Ctrl-C, or the launcher killing us on "restart".
 	sigCh := make(chan os.Signal, 1)

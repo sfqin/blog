@@ -57,10 +57,11 @@ func deps(dbPath string) (*store.Store, *render.Renderer, fs.FS) {
 
 func runServe() {
 	cfg := server.Config{
-		Addr:    envOr("ADDR", ":8080"),
-		DBPath:  envOr("DB_PATH", "blog.db"),
-		Secure:  os.Getenv("SECURE_COOKIES") == "1",
-		RepoDir: envOr("REPO_DIR", "."), // where the setup wizard runs git/gh
+		Addr:       envOr("ADDR", ":8080"),
+		DBPath:     envOr("DB_PATH", "blog.db"),
+		Secure:     os.Getenv("SECURE_COOKIES") == "1",
+		RepoDir:    envOr("REPO_DIR", "."), // where the setup wizard runs git/gh
+		ServerMode: os.Getenv("SERVER_MODE") == "1",
 	}
 
 	st, rnd, staticFS := deps(cfg.DBPath)

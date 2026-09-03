@@ -21,6 +21,12 @@ type Config struct {
 	DBPath  string
 	Secure  bool   // set Secure flag on cookies (HTTPS deployments)
 	RepoDir string // working dir for git/gh commands in the setup wizard
+	// ServerMode keeps the process running as a long-lived daemon (e.g. behind
+	// systemd + Nginx). It disables the idle watchdog that otherwise exits the
+	// process once every browser tab closes — that auto-exit suits the local
+	// double-click launcher but would take a hosted blog offline whenever no one
+	// is viewing it.
+	ServerMode bool
 }
 
 // Server holds shared dependencies for all handlers.
