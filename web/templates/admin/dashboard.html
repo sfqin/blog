@@ -5,18 +5,18 @@
 </p>
 {{with .Data}}
 <div class="dash-grid" style="margin-top:22px">
-  <a class="dash-card" href="/admin/experiences"><div class="num">{{.Counts.experiences}}</div><div class="lbl">experiences</div></a>
-  <a class="dash-card" href="/admin/thoughts"><div class="num">{{.Counts.thoughts}}</div><div class="lbl">thoughts</div></a>
-  <a class="dash-card" href="/admin/projects"><div class="num">{{.Counts.projects}}</div><div class="lbl">projects</div></a>
-  <a class="dash-card" href="/admin/posts"><div class="num">{{.Counts.posts}}</div><div class="lbl">posts</div></a>
-  <a class="dash-card" href="/admin/footprints"><div class="num">{{.Counts.footprints}}</div><div class="lbl">footprints</div></a>
-  <a class="dash-card" href="/admin/moments"><div class="num">{{.Counts.moments}}</div><div class="lbl">moments</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/experiences"><div class="num">{{.Counts.experiences}}</div><div class="lbl">experiences</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/thoughts"><div class="num">{{.Counts.thoughts}}</div><div class="lbl">thoughts</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/projects"><div class="num">{{.Counts.projects}}</div><div class="lbl">projects</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/posts"><div class="num">{{.Counts.posts}}</div><div class="lbl">posts</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/footprints"><div class="num">{{.Counts.footprints}}</div><div class="lbl">footprints</div></a>
+  <a class="dash-card" href="{{$.AdminBase}}/moments"><div class="num">{{.Counts.moments}}</div><div class="lbl">moments</div></a>
 </div>
 <div style="margin-top:28px">
-  <a class="btn-primary" style="text-decoration:none" href="/admin/posts/new">+ 写新文章</a>
-  <a class="btn-ghost" style="text-decoration:none;margin-left:8px" href="/admin/profile">编辑 whoami</a>
+  <a class="btn-primary" style="text-decoration:none" href="{{$.AdminBase}}/posts/new">+ 写新文章</a>
+  <a class="btn-ghost" style="text-decoration:none;margin-left:8px" href="{{$.AdminBase}}/profile">编辑 whoami</a>
   <a class="btn-ghost" style="text-decoration:none;margin-left:8px" href="/" target="_blank">↗ 本地预览</a>
-  <a class="btn-ghost" style="text-decoration:none;margin-left:8px" href="/admin/publish">☁ 发布上线</a>
+  {{if not $.Ops}}<a class="btn-ghost" style="text-decoration:none;margin-left:8px" href="{{$.AdminBase}}/publish">☁ 发布上线</a>{{end}}
 </div>
 {{end}}
 {{template "admin_foot" .}}

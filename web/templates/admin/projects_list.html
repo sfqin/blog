@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <div class="toolbar">
   <h1>projects</h1>
-  <a class="btn-primary" style="text-decoration:none" href="/admin/projects/new">+ new</a>
+  <a class="btn-primary" style="text-decoration:none" href="{{$.AdminBase}}/projects/new">+ new</a>
 </div>
 {{if .Data}}
 <table>
@@ -15,8 +15,8 @@
       <td class="muted">{{.License}}</td>
       <td class="muted">{{.SortOrder}}</td>
       <td style="white-space:nowrap;text-align:right">
-        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="/admin/projects/{{.ID}}/edit">edit</a>
-        <form method="post" action="/admin/projects/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('删除这个项目？')">
+        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="{{$.AdminBase}}/projects/{{.ID}}/edit">edit</a>
+        <form method="post" action="{{$.AdminBase}}/projects/{{.ID}}/delete" style="display:inline" data-confirm="删除后无法恢复，确认删除？">
           <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
           <button class="btn-danger" type="submit">del</button>
         </form>

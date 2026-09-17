@@ -57,7 +57,7 @@
     provHint.textContent = "";
     cityHint.textContent = "";
     if (!code) return;
-    loadJSON("/static/geo/regions/" + code + ".json").then(function (d) {
+    loadJSON((document.body.dataset.ops === "true" ? document.body.dataset.adminBase : "") + "/static/geo/regions/" + code + ".json").then(function (d) {
       (d.regions || []).forEach(function (r) {
         if (!r.name) return;
         // Foreign regions carry a Chinese label (zh); show "中文 · English" so a
@@ -96,7 +96,7 @@
       cityHint.textContent = "该省/州暂无城市数据，将只记录到省/州级别。";
       return;
     }
-    loadJSON("/static/geo/regions/" + code + "/" + key + ".json").then(function (d) {
+    loadJSON((document.body.dataset.ops === "true" ? document.body.dataset.adminBase : "") + "/static/geo/regions/" + code + "/" + key + ".json").then(function (d) {
       (d.regions || []).forEach(function (r) {
         // Same bilingual "中文 · English" label as provinces where a Chinese name
         // is known; stored value stays r.name (what the globe matches on).

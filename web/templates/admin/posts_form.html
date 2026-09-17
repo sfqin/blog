@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 {{$isNew := .Data.IsNew}}{{$it := .Data.Item}}
 <h1>{{if $isNew}}new post{{else}}edit post{{end}}</h1>
-<form method="post" action="{{if $isNew}}/admin/posts{{else}}/admin/posts/{{$it.ID}}{{end}}">
+<form method="post" action="{{if $isNew}}{{$.AdminBase}}/posts{{else}}{{$.AdminBase}}/posts/{{$it.ID}}{{end}}">
   <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
   <div class="field">
     <label>title 标题</label>
@@ -34,8 +34,8 @@
   </div>
   <div class="actions-bar">
     <button class="btn-primary" type="submit">save</button>
-    <a class="btn-ghost" style="text-decoration:none" href="/admin/posts">cancel</a>
+    <a class="btn-ghost" style="text-decoration:none" href="{{$.AdminBase}}/posts">cancel</a>
   </div>
 </form>
-<script src="{{asset "/static/js/admin.js"}}" defer></script>
+<script src="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/js/admin.js"}}" defer></script>
 {{template "admin_foot" .}}

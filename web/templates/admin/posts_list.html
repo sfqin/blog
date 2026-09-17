@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <div class="toolbar">
   <h1>posts</h1>
-  <a class="btn-primary" style="text-decoration:none" href="/admin/posts/new">+ new post</a>
+  <a class="btn-primary" style="text-decoration:none" href="{{$.AdminBase}}/posts/new">+ new post</a>
 </div>
 {{if .Data}}
 <table>
@@ -16,8 +16,8 @@
       <td>{{if .Published}}<span class="badge pub">published</span>{{else}}<span class="badge draft">draft</span>{{end}}</td>
       <td style="white-space:nowrap;text-align:right">
         {{if .Published}}<a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="/posts/{{.Slug}}" target="_blank">view</a>{{end}}
-        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="/admin/posts/{{.ID}}/edit">edit</a>
-        <form method="post" action="/admin/posts/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('删除这篇文章？')">
+        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="{{$.AdminBase}}/posts/{{.ID}}/edit">edit</a>
+        <form method="post" action="{{$.AdminBase}}/posts/{{.ID}}/delete" style="display:inline" data-confirm="删除后无法恢复，确认删除？">
           <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
           <button class="btn-danger" type="submit">del</button>
         </form>

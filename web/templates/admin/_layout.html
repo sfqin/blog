@@ -4,30 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{.Title}} — admin · dev@home</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+{{if not .Ops}}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{asset "/static/css/crt.css"}}">
-<link rel="stylesheet" href="{{asset "/static/css/admin.css"}}">
+{{end}}
+<link rel="stylesheet" href="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/css/crt.css"}}">
+<link rel="stylesheet" href="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/css/admin.css"}}">
 </head>
-<body>
+<body data-admin-base="{{.AdminBase}}" data-ops="{{.Ops}}">
 <div class="crt-scanlines"></div>
 <div class="crt-vignette"></div>
 <div class="admin-shell">
   <aside class="admin-side">
-    <a class="brand" href="/admin">dev@home:~#</a>
-    <a href="/admin" class="{{if eq .Active "dashboard"}}active{{end}}"><span class="nav-en">dashboard</span><span class="nav-zh">总览</span></a>
-    <a href="/admin/profile" class="{{if eq .Active "profile"}}active{{end}}"><span class="nav-en">profile</span><span class="nav-zh">个人资料</span></a>
-    <a href="/admin/theme" class="{{if eq .Active "theme"}}active{{end}}"><span class="nav-en">theme</span><span class="nav-zh">主题</span></a>
-    <a href="/admin/experiences" class="{{if eq .Active "experiences"}}active{{end}}"><span class="nav-en">experiences</span><span class="nav-zh">工作经历</span></a>
-    <a href="/admin/thoughts" class="{{if eq .Active "thoughts"}}active{{end}}"><span class="nav-en">thoughts</span><span class="nav-zh">随想</span></a>
-    <a href="/admin/projects" class="{{if eq .Active "projects"}}active{{end}}"><span class="nav-en">projects</span><span class="nav-zh">项目</span></a>
-    <a href="/admin/posts" class="{{if eq .Active "posts"}}active{{end}}"><span class="nav-en">posts</span><span class="nav-zh">文章</span></a>
-    <a href="/admin/footprints" class="{{if eq .Active "footprints"}}active{{end}}"><span class="nav-en">footprints</span><span class="nav-zh">足迹</span></a>
-    <a href="/admin/moments" class="{{if eq .Active "moments"}}active{{end}}"><span class="nav-en">moments</span><span class="nav-zh">瞬间</span></a>
+    <a class="brand" href="{{$.AdminBase}}">dev@home:~#</a>
+    <a href="{{$.AdminBase}}" class="{{if eq .Active "dashboard"}}active{{end}}"><span class="nav-en">dashboard</span><span class="nav-zh">总览</span></a>
+    <a href="{{$.AdminBase}}/profile" class="{{if eq .Active "profile"}}active{{end}}"><span class="nav-en">profile</span><span class="nav-zh">个人资料</span></a>
+    <a href="{{$.AdminBase}}/theme" class="{{if eq .Active "theme"}}active{{end}}"><span class="nav-en">theme</span><span class="nav-zh">主题</span></a>
+    <a href="{{$.AdminBase}}/experiences" class="{{if eq .Active "experiences"}}active{{end}}"><span class="nav-en">experiences</span><span class="nav-zh">工作经历</span></a>
+    <a href="{{$.AdminBase}}/thoughts" class="{{if eq .Active "thoughts"}}active{{end}}"><span class="nav-en">thoughts</span><span class="nav-zh">随想</span></a>
+    <a href="{{$.AdminBase}}/projects" class="{{if eq .Active "projects"}}active{{end}}"><span class="nav-en">projects</span><span class="nav-zh">项目</span></a>
+    <a href="{{$.AdminBase}}/posts" class="{{if eq .Active "posts"}}active{{end}}"><span class="nav-en">posts</span><span class="nav-zh">文章</span></a>
+    <a href="{{$.AdminBase}}/footprints" class="{{if eq .Active "footprints"}}active{{end}}"><span class="nav-en">footprints</span><span class="nav-zh">足迹</span></a>
+    <a href="{{$.AdminBase}}/moments" class="{{if eq .Active "moments"}}active{{end}}"><span class="nav-en">moments</span><span class="nav-zh">瞬间</span></a>
     <div class="side-actions">
       <a href="/" target="_blank"><span class="nav-en">↗ view site</span><span class="nav-zh">本地预览（在本机查看效果）</span></a>
-      <a href="/admin/publish" class="{{if eq .Active "publish"}}active{{end}}"><span class="nav-en">☁ publish</span><span class="nav-zh">发布上线（推送到网上）</span></a>
+      {{if not .Ops}}<a href="{{$.AdminBase}}/publish" class="{{if eq .Active "publish"}}active{{end}}"><span class="nav-en">☁ publish</span><span class="nav-zh">发布上线（推送到网上）</span></a>{{end}}
+ {{if .Ops}}<a href="/ojbk/opq_aaa/blog">← 返回运维平台</a>{{end}}
     </div>
   </aside>
   <main class="admin-main">
@@ -37,8 +39,9 @@
 {{define "admin_foot"}}
   </main>
 </div>
-<script src="{{asset "/static/js/heartbeat.js"}}" defer></script>
-<script src="{{asset "/static/js/admin-guard.js"}}" defer></script>
+{{if not .Ops}}<script src="{{asset "/static/js/heartbeat.js"}}" defer></script>{{end}}
+<script src="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/js/admin-session.js"}}" defer></script>
+<script src="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/js/admin-guard.js"}}" defer></script>
 </body>
 </html>
 {{end}}

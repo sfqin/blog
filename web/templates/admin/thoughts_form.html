@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 {{$isNew := .Data.IsNew}}{{$it := .Data.Item}}
 <h1>{{if $isNew}}new thought{{else}}edit thought{{end}}</h1>
-<form method="post" action="{{if $isNew}}/admin/thoughts{{else}}/admin/thoughts/{{$it.ID}}{{end}}">
+<form method="post" action="{{if $isNew}}{{$.AdminBase}}/thoughts{{else}}{{$.AdminBase}}/thoughts/{{$it.ID}}{{end}}">
   <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
   <div class="row2">
     <div class="field">
@@ -19,7 +19,7 @@
   </div>
   <div class="actions-bar">
     <button class="btn-primary" type="submit">save</button>
-    <a class="btn-ghost" style="text-decoration:none" href="/admin/thoughts">cancel</a>
+    <a class="btn-ghost" style="text-decoration:none" href="{{$.AdminBase}}/thoughts">cancel</a>
   </div>
 </form>
 {{template "admin_foot" .}}

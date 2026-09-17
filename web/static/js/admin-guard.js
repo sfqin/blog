@@ -32,7 +32,7 @@
     f.addEventListener("input", markDirty);
     f.addEventListener("change", markDirty);
     // Saving is intentional: drop the flag and let navigation proceed.
-    f.addEventListener("submit", function () { dirty = false; leaving = true; });
+    f.addEventListener("submit", function () { if (document.body.dataset.ops !== "true") { dirty = false; leaving = true; } });
   });
 
   // --- confirmation modal (injected once) -----------------------------------
@@ -50,6 +50,8 @@
     '</div>';
   document.body.appendChild(modal);
 
+  window.addEventListener("admin-saved", function () { dirty=false; leaving=true; });
+  window.addEventListener("admin-save-failed", function () { dirty=true; leaving=false; });
   var pending = null; // action to run if the user confirms leaving
   function openModal(onConfirm) {
     pending = onConfirm;

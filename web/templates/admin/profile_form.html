@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <h1>profile — whoami / hero</h1>
 {{with .Data}}
-<form method="post" action="/admin/profile">
+<form method="post" action="{{$.AdminBase}}/profile">
   <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
   <div class="row2">
     <div class="field">

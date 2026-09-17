@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <div class="toolbar">
   <h1>footprints — 去过的地方</h1>
-  <a class="btn-primary" style="text-decoration:none" href="/admin/footprints/new">+ new</a>
+  <a class="btn-primary" style="text-decoration:none" href="{{$.AdminBase}}/footprints/new">+ new</a>
 </div>
 <p class="muted" style="color:var(--muted);margin-top:-10px">
   每行一个「城市」。国家代码用 ISO 两位大写（CN / JP / MY / SG）。地球模块按 国家→省/州→城市 分组高亮。
@@ -18,8 +18,8 @@
       <td class="muted">{{.Note}}</td>
       <td class="muted">{{.SortOrder}}</td>
       <td style="white-space:nowrap;text-align:right">
-        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="/admin/footprints/{{.ID}}/edit">edit</a>
-        <form method="post" action="/admin/footprints/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('删除这个足迹？')">
+        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="{{$.AdminBase}}/footprints/{{.ID}}/edit">edit</a>
+        <form method="post" action="{{$.AdminBase}}/footprints/{{.ID}}/delete" style="display:inline" data-confirm="删除后无法恢复，确认删除？">
           <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
           <button class="btn-danger" type="submit">del</button>
         </form>

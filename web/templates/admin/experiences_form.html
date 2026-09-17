@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 {{$isNew := .Data.IsNew}}{{$it := .Data.Item}}
 <h1>{{if $isNew}}new experience{{else}}edit experience{{end}}</h1>
-<form method="post" action="{{if $isNew}}/admin/experiences{{else}}/admin/experiences/{{$it.ID}}{{end}}">
+<form method="post" action="{{if $isNew}}{{$.AdminBase}}/experiences{{else}}{{$.AdminBase}}/experiences/{{$it.ID}}{{end}}">
   <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
   <div class="row2">
     <div class="field">
@@ -29,7 +29,7 @@
   </div>
   <div class="actions-bar">
     <button class="btn-primary" type="submit">save</button>
-    <a class="btn-ghost" style="text-decoration:none" href="/admin/experiences">cancel</a>
+    <a class="btn-ghost" style="text-decoration:none" href="{{$.AdminBase}}/experiences">cancel</a>
   </div>
 </form>
 {{template "admin_foot" .}}

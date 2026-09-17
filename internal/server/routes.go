@@ -41,20 +41,25 @@ func (s *Server) routes() {
 
 	// Admin dashboard. The admin panel is unauthenticated (local single-user
 	// app); guard only enforces CSRF on the state-changing POSTs below.
-	s.mux.HandleFunc("GET /admin", s.handleDashboard)
-	s.mux.HandleFunc("GET /admin/{$}", s.handleDashboard)
+	s.mux.HandleFunc("GET "+s.adminBase()+"", s.handleDashboard)
+	s.mux.HandleFunc("GET "+s.adminBase()+"/{$}", s.handleDashboard)
 
 	// Publish-online page (renders + pushes to GitHub Pages). The publish action
 	// itself reuses POST /setup/publish.
-	s.mux.HandleFunc("GET /admin/publish", s.handlePublishPage)
+	s.mux.HandleFunc("GET "+s.adminBase()+"/publish", s.handlePublishPage)
+
+	s.mux.HandleFunc("POST "+s.adminBase()+"/preview", s.guard(s.handlePreview))
+	if s.cfg.AdminBase != "" {
+		s.mux.Handle("GET "+s.adminBase()+"/static/", http.StripPrefix(s.adminBase()+"/static/", http.FileServer(http.FS(s.static))))
+	}
 
 	// Profile (single row).
-	s.mux.HandleFunc("GET /admin/profile", s.handleProfileForm)
-	s.mux.HandleFunc("POST /admin/profile", s.guard(s.handleProfileSave))
+	s.mux.HandleFunc("GET "+s.adminBase()+"/profile", s.handleProfileForm)
+	s.mux.HandleFunc("POST "+s.adminBase()+"/profile", s.guard(s.handleProfileSave))
 
 	// Site theme (single setting, its own tab).
-	s.mux.HandleFunc("GET /admin/theme", s.handleThemeForm)
-	s.mux.HandleFunc("POST /admin/theme", s.guard(s.handleThemeSave))
+	s.mux.HandleFunc("GET "+s.adminBase()+"/theme", s.handleThemeForm)
+	s.mux.HandleFunc("POST "+s.adminBase()+"/theme", s.guard(s.handleThemeSave))
 
 	// Generic CRUD sections. Each collection has list/new/create/edit/update/delete.
 	s.registerCRUD("experiences")
@@ -68,7 +73,7 @@ func (s *Server) routes() {
 // registerCRUD wires the standard admin CRUD routes for a collection name.
 // GETs are open (unauthenticated local admin); state-changing POSTs enforce CSRF.
 func (s *Server) registerCRUD(name string) {
-	base := "/admin/" + name
+	base := s.adminBase() + "/" + name
 	s.mux.HandleFunc("GET "+base, s.crudList(name))
 	s.mux.HandleFunc("GET "+base+"/new", s.crudEditForm(name))
 	s.mux.HandleFunc("POST "+base, s.guard(s.crudCreate(name)))

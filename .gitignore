@@ -24,5 +24,5 @@
 # OS / editor
 .DS_Store
 
-# NOTE: /dist is intentionally NOT ignored — the rendered static site is
-# committed and pushed so Cloudflare Pages / GitHub Pages can serve it.
+# Rendered static site and server binaries are build artifacts.
+/dist/

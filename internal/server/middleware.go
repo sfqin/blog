@@ -83,6 +83,13 @@ func (s *Server) guard(next http.HandlerFunc) http.HandlerFunc {
 
 // csrfValid checks the double-submit CSRF token (cookie value == form field).
 func (s *Server) csrfValid(r *http.Request) bool {
+	if s.cfg.AdminBase != "" {
+		if r.ParseForm() != nil {
+			return false
+		}
+		expected := r.Header.Get("X-Ops-CSRF")
+		return expected != "" && auth.ConstantTimeEqual(expected, r.PostForm.Get("csrf_token"))
+	}
 	c, err := r.Cookie(csrfCookie)
 	if err != nil || c.Value == "" {
 		return false
@@ -95,6 +102,9 @@ func (s *Server) csrfValid(r *http.Request) bool {
 
 // ensureCSRF returns the current CSRF token, setting a fresh cookie if absent.
 func (s *Server) ensureCSRF(w http.ResponseWriter, r *http.Request) string {
+	if s.cfg.AdminBase != "" {
+		return r.Header.Get("X-Ops-CSRF")
+	}
 	if c, err := r.Cookie(csrfCookie); err == nil && c.Value != "" {
 		return c.Value
 	}

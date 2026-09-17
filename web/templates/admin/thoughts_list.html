@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <div class="toolbar">
   <h1>thoughts</h1>
-  <a class="btn-primary" style="text-decoration:none" href="/admin/thoughts/new">+ new</a>
+  <a class="btn-primary" style="text-decoration:none" href="{{$.AdminBase}}/thoughts/new">+ new</a>
 </div>
 {{if .Data}}
 <table>
@@ -13,8 +13,8 @@
       <td>{{.Topic}}</td>
       <td>{{.Body}}</td>
       <td style="white-space:nowrap;text-align:right">
-        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="/admin/thoughts/{{.ID}}/edit">edit</a>
-        <form method="post" action="/admin/thoughts/{{.ID}}/delete" style="display:inline" onsubmit="return confirm('删除这条思考？')">
+        <a class="btn-ghost" style="text-decoration:none;padding:6px 12px" href="{{$.AdminBase}}/thoughts/{{.ID}}/edit">edit</a>
+        <form method="post" action="{{$.AdminBase}}/thoughts/{{.ID}}/delete" style="display:inline" data-confirm="删除后无法恢复，确认删除？">
           <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
           <button class="btn-danger" type="submit">del</button>
         </form>

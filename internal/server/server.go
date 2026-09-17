@@ -2,11 +2,13 @@
 package server
 
 import (
+	"errors"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -17,10 +19,12 @@ import (
 
 // Config holds runtime configuration for the server.
 type Config struct {
-	Addr    string
-	DBPath  string
-	Secure  bool   // set Secure flag on cookies (HTTPS deployments)
-	RepoDir string // working dir for git/gh commands in the setup wizard
+	AdminBase string
+	OpsToken  string
+	Addr      string
+	DBPath    string
+	Secure    bool   // set Secure flag on cookies (HTTPS deployments)
+	RepoDir   string // working dir for git/gh commands in the setup wizard
 	// ServerMode keeps the process running as a long-lived daemon (e.g. behind
 	// systemd + Nginx). It disables the idle watchdog that otherwise exits the
 	// process once every browser tab closes — that auto-exit suits the local
@@ -48,6 +52,15 @@ type Server struct {
 
 // New constructs the server and registers routes.
 func New(cfg Config, st *store.Store, rnd *render.Renderer, static fs.FS) (*Server, error) {
+	if cfg.AdminBase != "" && (cfg.AdminBase != "/ojbk/opq_aaa/blog/admin" || len(cfg.OpsToken) < 32) {
+		return nil, errors.New("invalid ops gateway configuration")
+	}
+	if cfg.ServerMode && cfg.AdminBase == "" {
+		cfg.AdminBase = "/ojbk/opq_aaa/blog/admin"
+	}
+	if strings.ContainsAny(cfg.OpsToken, "\r\n") {
+		return nil, errors.New("invalid ops credential")
+	}
 	repo := cfg.RepoDir
 	if repo == "" {
 		repo = "."

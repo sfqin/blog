@@ -11,6 +11,11 @@ import (
 
 // writeHTML renders a template to a buffer then writes it, returning 500 on error.
 func (s *Server) writeHTML(w http.ResponseWriter, name string, data any) {
+	if page, ok := data.(adminPage); ok {
+		page.AdminBase = s.adminBase()
+		page.Ops = s.cfg.AdminBase != ""
+		data = page
+	}
 	b, err := s.render.Render(name, data)
 	if err != nil {
 		log.Printf("render error [%s]: %v", name, err)

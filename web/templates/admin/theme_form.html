@@ -1,7 +1,7 @@
 {{template "admin_head" .}}
 <h1>theme — 站点主题</h1>
 {{with .Data}}
-<form method="post" action="/admin/theme" id="theme-form">
+<form method="post" action="{{$.AdminBase}}/theme" id="theme-form">
   <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
   <div class="field">
     <label>site theme 全站主题</label>
@@ -48,46 +48,10 @@
     <a class="tpb-open" id="tp-open" href="/?preview_theme={{.Theme}}" target="_blank">在新标签打开 ↗</a>
   </div>
   <div class="theme-preview-stage" id="tp-stage">
-    <iframe id="tp-frame" title="主题实时预览" src="/?preview_theme={{.Theme}}" loading="lazy" scrolling="no"></iframe>
+    <iframe sandbox="allow-scripts" id="tp-frame" title="主题实时预览" src="/?preview_theme={{.Theme}}" loading="lazy" scrolling="no"></iframe>
   </div>
 </div>
 
-<script>
-(function () {
-  "use strict";
-  var sel   = document.getElementById("theme-select");
-  var frame = document.getElementById("tp-frame");
-  var stage = document.getElementById("tp-stage");
-  var url   = document.getElementById("tp-url");
-  var open  = document.getElementById("tp-open");
-  if (!sel || !frame || !stage) return;
-
-  // Render the preview at a logical desktop viewport, then scale it down to fit
-  // the admin panel width so visitors' real (desktop-first) layout is faithful.
-  var W = 1280, H = 860;
-  function fit() {
-    var scale = stage.clientWidth / W;
-    frame.style.width = W + "px";
-    frame.style.height = H + "px";
-    frame.style.transform = "scale(" + scale + ")";
-    stage.style.height = (H * scale) + "px";
-  }
-
-  // Swap the previewed theme without saving. The home handler honors
-  // ?preview_theme=X for this render only (nothing is written to the DB).
-  function refresh() {
-    var t = sel.value || "F";
-    var href = "/?preview_theme=" + encodeURIComponent(t);
-    frame.src = href;
-    if (url) url.textContent = href;
-    if (open) open.setAttribute("href", href);
-  }
-
-  sel.addEventListener("change", refresh);
-  window.addEventListener("resize", fit);
-  frame.addEventListener("load", fit);
-  fit();
-})();
-</script>
+<script src="{{if $.Ops}}{{$.AdminBase}}{{end}}{{asset "/static/js/admin-theme.js"}}" defer></script>
 {{end}}
 {{template "admin_foot" .}}

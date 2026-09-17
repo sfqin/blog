@@ -91,7 +91,7 @@ func (s *Server) crudCreate(name string) http.HandlerFunc {
 			s.serverError(w, name+" create", err)
 			return
 		}
-		http.Redirect(w, r, "/admin/"+name+"?flash=created", http.StatusSeeOther)
+		http.Redirect(w, r, s.adminBase()+"/"+name+"?flash=created", http.StatusSeeOther)
 	}
 }
 
@@ -111,7 +111,7 @@ func (s *Server) crudUpdate(name string) http.HandlerFunc {
 			s.serverError(w, name+" update", err)
 			return
 		}
-		http.Redirect(w, r, "/admin/"+name+"?flash=updated", http.StatusSeeOther)
+		http.Redirect(w, r, s.adminBase()+"/"+name+"?flash=updated", http.StatusSeeOther)
 	}
 }
 
@@ -127,7 +127,7 @@ func (s *Server) crudDelete(name string) http.HandlerFunc {
 			s.serverError(w, name+" delete", err)
 			return
 		}
-		http.Redirect(w, r, "/admin/"+name+"?flash=deleted", http.StatusSeeOther)
+		http.Redirect(w, r, s.adminBase()+"/"+name+"?flash=deleted", http.StatusSeeOther)
 	}
 }
 

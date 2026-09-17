@@ -2,7 +2,7 @@
 {{$isNew := .Data.IsNew}}{{$it := .Data.Item}}
 <h1>{{if $isNew}}new footprint 新增足迹{{else}}edit footprint 编辑足迹{{end}}</h1>
 <form id="fp-form" method="post"
-      action="{{if $isNew}}/admin/footprints{{else}}/admin/footprints/{{$it.ID}}{{end}}"
+      action="{{if $isNew}}{{$.AdminBase}}/footprints{{else}}{{$.AdminBase}}/footprints/{{$it.ID}}{{end}}"
       data-cc="{{if not $isNew}}{{$it.CountryCode}}{{end}}"
       data-prov="{{if not $isNew}}{{$it.Province}}{{end}}"
       data-city="{{if not $isNew}}{{$it.City}}{{end}}">
@@ -59,13 +59,13 @@
     </div>
     <div class="hint">在地球下钻到「城市」层级时，点击该城市可跳到所关联的瞬间（可关联多条）。</div>
     {{else}}
-    <div class="hint">还没有瞬间可关联，先到 <a href="/admin/moments">/admin/moments</a> 添加。</div>
+    <div class="hint">还没有瞬间可关联，先到 <a href="{{$.AdminBase}}/moments">{{$.AdminBase}}/moments</a> 添加。</div>
     {{end}}
   </div>
   <div class="actions-bar">
     <button class="btn-primary" type="submit">save</button>
-    <a class="btn-ghost" style="text-decoration:none" href="/admin/footprints">cancel</a>
+    <a class="btn-ghost" style="text-decoration:none" href="{{$.AdminBase}}/footprints">cancel</a>
   </div>
 </form>
-<script src="{{asset "/static/js/footprint-form.js"}}"></script>
+<script src="{{if .Ops}}{{$.AdminBase}}{{end}}{{asset "/static/js/footprint-form.js"}}"></script>
 {{template "admin_foot" .}}

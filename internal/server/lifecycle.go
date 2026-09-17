@@ -139,7 +139,7 @@ func (s *Server) Run() error {
 	s.writeRuntime(port)
 	defer os.Remove(s.runtimePath())
 
-	httpSrv := &http.Server{Handler: s.recoverPanic(s.logRequests(s.gzipStatic(s.mux)))}
+	httpSrv := &http.Server{Handler: s.recoverPanic(s.logRequests(s.gzipStatic(s)))}
 
 	// Reason we stopped, for a friendlier log line.
 	stop := make(chan string, 1)

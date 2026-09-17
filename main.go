@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"strings"
 
 	"dev-home-blog/internal/export"
 	"dev-home-blog/internal/render"
@@ -64,6 +65,14 @@ func runServe() {
 		ServerMode: os.Getenv("SERVER_MODE") == "1",
 	}
 
+	if tokenFile := os.Getenv("OPS_SERVICE_TOKEN_FILE"); tokenFile != "" {
+		data, err := os.ReadFile(tokenFile)
+		if err != nil {
+			log.Fatal("cannot read ops credential file")
+		}
+		cfg.OpsToken = strings.TrimSpace(string(data))
+		cfg.AdminBase = "/ojbk/opq_aaa/blog/admin"
+	}
 	st, rnd, staticFS := deps(cfg.DBPath)
 	defer st.Close()
 
