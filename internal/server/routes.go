@@ -12,8 +12,12 @@ func (s *Server) routes() {
 	// fix. For a local single-user app the assets are tiny and served from
 	// memory, so we tell the browser to always revalidate (no-cache). This makes
 	// edits show up on the next refresh instead of being silently cached.
+	// Geo data and self-hosted fonts are the exception: they are large and are
+	// always referenced with a content-hash ?v= query, so they are cached for a
+	// year as immutable (a new version gets a new URL).
 	staticHandler := http.StripPrefix("/static/", http.FileServer(http.FS(s.static)))
 	s.mux.Handle("GET /static/geo/", cacheImmutable(staticHandler))
+	s.mux.Handle("GET /static/fonts/", cacheImmutable(staticHandler))
 	s.mux.Handle("GET /static/", noCache(staticHandler))
 
 	// Liveness heartbeat: every open blog page pings this (heartbeat.js). When

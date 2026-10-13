@@ -57,6 +57,23 @@ func TestAdminThemeRouteRemoved(t *testing.T) {
 	}
 }
 
+// Self-hosted fonts (web/static/fonts, added by WP0) must be served with the
+// one-year immutable cache. Skips until fonts.css exists in the repo tree; the
+// router-level policy is covered unconditionally in static_cache_test.go.
+func TestFontsCSSIsImmutable(t *testing.T) {
+	if _, err := os.Stat("../../web/static/fonts/fonts.css"); err != nil {
+		t.Skip("web/static/fonts/fonts.css not present yet (WP0)")
+	}
+	srv, _ := newPublicTestServer(t)
+	rec := doRequest(t, srv, http.MethodGet, "/static/fonts/fonts.css")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("GET /static/fonts/fonts.css status = %d, want %d", rec.Code, http.StatusOK)
+	}
+	if got := rec.Header().Get("Cache-Control"); !strings.Contains(got, "immutable") || !strings.Contains(got, "max-age=31536000") {
+		t.Fatalf("Cache-Control = %q, want one-year immutable", got)
+	}
+}
+
 // The admin sidebar must no longer link to the retired theme page.
 func TestAdminNavHasNoThemeLink(t *testing.T) {
 	srv, _ := newPublicTestServer(t)
