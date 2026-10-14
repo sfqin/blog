@@ -775,7 +775,7 @@ WP1–WP5 全部合入 ─▶ WP6 集成、全量验收、dist 导出（owner �
 |---|---|---|
 | `site_head` | 页面根数据（需要 `.Base`） | `<meta charset>`、viewport、`theme-color`、7.5 的内联脚本、`fonts.css`、`site.css` |
 | `site_nav` | 页面根数据 | 玻璃导航：品牌（`{{.Base}}/`）、搜索框 `#site-search` + `#search-results`、移动端 `.nav-search-btn`；文章页额外输出 `.nav-post-title` 与 `#reading-toggle`（由 post.html 自己渲染，不进 partial） |
-| `site_footer` | 页面根数据（需要 `.Profile`） | 金色细线 + `© {year} {Name 或 dev@home} · built with blog_self` |
+| `site_footer` | 页面根数据（需要 `.Profile`） | 金色细线 + `© {year} {Name 或 dev@home} · built with blog_self`；`blog_self` 链接至 `https://github.com/sfqin/blog_self`，新标签页打开，悬停或键盘聚焦时显示金色 |
 | `site_constellation` | `homeNav` 的返回值 | 5.2 的 `<nav class="constellation">` |
 | `star_rail` | `homeNav` 的返回值 | 5.6 的 `<nav class="star-rail">`，结构同星座，类名 `rail-star` |
 
