@@ -213,7 +213,7 @@
   - 任何 `/admin` 文案或链接
   - 「// 暂无…」空态
   - 命令行前缀（`$ `、`cat …`、`ls -lt …`）
-- 页脚：`© {year} {Name 或 "dev@home"} · built with blog_self`，上方一条金色细线。s_blog 会在页脚追加备案行（见 5.8）。
+- 页脚：`© {year} {Name 或 "dev@home"} · built with blog_self`，上方一条金色细线。s_blog 动态服务在页脚追加备案行，静态导出（包括 GitHub Pages）不显示（见 5.8）。
 
 ### 5.2 Hero 与星座导航（§2）
 
@@ -591,7 +591,7 @@ html[data-reading]
 | 文件 | 处理 |
 |---|---|
 | `web/templates/public/home.html`、`post.html` | 取 upstream |
-| `web/templates/public/_partials.html` | 取 upstream，然后**单独 commit**，在 `site_footer` 中追加备案行：`<div class="beian"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"><s_blog 当前 crt.css 页脚里的备案号></a></div>` |
+| `web/templates/public/_partials.html` | 取 upstream，然后**单独 commit**，在 `site_footer` 中用 `{{if .Live}}…{{end}}` 包裹备案行：`<div class="beian"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer"><s_blog 当前页脚里的备案号></a></div>`。动态服务（含本地预览）保留备案，静态导出不含备案号或备案链接；首页、文章页一致 |
 | `web/static/css/crt.css` | 删除 3 条 `footer .beian` 规则，并把它们改写进 `site.css` 的 s_blog 实例段（同一个 commit） |
 | `theme_form.html`、`web/static/js/admin-theme.js` | 删除 |
 | `web/templates/admin/_layout.html` | 删除主题链接，保留 s_blog 的 `{{$.AdminBase}}` 等后台改动 |
@@ -618,7 +618,7 @@ html[data-reading]
    1. 合并到 s_blog `master`
    2. push 到 origin 和 gitee
    3. `scripts/publish-all.sh` 和 `scripts/deploy.sh push`
-   4. 线上验证：首页、文章页、`/static/fonts/*.woff2` 返回 200，页面有备案行
+   4. 线上验证：首页、文章页、`/static/fonts/*.woff2` 返回 200；GitHub Pages 页面源码不含备案行，自建服务器页面保留备案行
 6. 回滚：`git revert -m 1 <merge>`，然后重新 publish 和 deploy。
 
 ## 6. 工作包与文件归属
