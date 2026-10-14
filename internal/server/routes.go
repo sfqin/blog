@@ -12,8 +12,12 @@ func (s *Server) routes() {
 	// fix. For a local single-user app the assets are tiny and served from
 	// memory, so we tell the browser to always revalidate (no-cache). This makes
 	// edits show up on the next refresh instead of being silently cached.
+	// Geo data and self-hosted fonts are the exception: they are large and are
+	// always referenced with a content-hash ?v= query, so they are cached for a
+	// year as immutable (a new version gets a new URL).
 	staticHandler := http.StripPrefix("/static/", http.FileServer(http.FS(s.static)))
 	s.mux.Handle("GET /static/geo/", cacheImmutable(staticHandler))
+	s.mux.Handle("GET /static/fonts/", cacheImmutable(staticHandler))
 	s.mux.Handle("GET /static/", noCache(staticHandler))
 
 	// Liveness heartbeat: every open blog page pings this (heartbeat.js). When
@@ -56,10 +60,6 @@ func (s *Server) routes() {
 	// Profile (single row).
 	s.mux.HandleFunc("GET "+s.adminBase()+"/profile", s.handleProfileForm)
 	s.mux.HandleFunc("POST "+s.adminBase()+"/profile", s.guard(s.handleProfileSave))
-
-	// Site theme (single setting, its own tab).
-	s.mux.HandleFunc("GET "+s.adminBase()+"/theme", s.handleThemeForm)
-	s.mux.HandleFunc("POST "+s.adminBase()+"/theme", s.guard(s.handleThemeSave))
 
 	// Generic CRUD sections. Each collection has list/new/create/edit/update/delete.
 	s.registerCRUD("experiences")
