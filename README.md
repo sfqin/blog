@@ -1,6 +1,8 @@
-# blog_self ·「星夜远行」个人博客
+# s_blog ·「星夜远行」个人博客
 
 **中文** · [English](README.en.md)
+
+> 本仓库是作者的个人实例 **[sfqin/blog](https://github.com/sfqin/blog)**，本地目录名为 `s_blog`；开源上游是 [blog_self](https://github.com/sfqin/blog_self)。自建站地址为 <https://lvxingzhe.top/>，在线写作与服务更新请优先阅读[自建服务器指南](docs/self-hosted.md)。以下客户端和本地写作方式同样适用。
 
 用 Markdown 写文章，用星座导航串起经历、项目、思考和瞬间，再用 3D 足迹地球记录走过的地方。支持在自己的电脑上写作，发布到 GitHub Pages、静态托管平台或自己的服务器。
 
@@ -66,8 +68,8 @@ Windows：确认来源后，在 SmartScreen 中选择「更多信息 → 仍要�
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/sfqin/blog_self.git
-cd blog_self
+git clone https://github.com/sfqin/blog.git s_blog
+cd s_blog
 go build -o ./blogbin .
 
 DATA_DIR="$HOME/dev-home-blog"
@@ -95,8 +97,8 @@ ADDR=127.0.0.1:8080 \
 <summary>Windows PowerShell 启动命令</summary>
 
 ```powershell
-git clone https://github.com/sfqin/blog_self.git
-cd blog_self
+git clone https://github.com/sfqin/blog.git s_blog
+cd s_blog
 go build -o blogbin.exe .
 
 $dataDir = Join-Path $env:USERPROFILE "dev-home-blog"
@@ -181,13 +183,20 @@ DB_PATH="$HOME/dev-home-blog/blog.db" BASE_URL=/blog \
 
 仓库还保留了进阶发布脚本，执行前先确认当前仓库与 remote：
 
-| 脚本 | blog_self 上游中的行为 |
+| 脚本 | 当前 s_blog 实例中的行为 |
 | --- | --- |
-| `scripts/publish.sh` | 生成根路径 `dist/`，提交并推送当前源码分支 |
-| `scripts/publish-all.sh` | 更新并推送 `dist/`，再发布 `gh-pages`；配置了 Gitee remote 时还可能推送 Gitee |
+| `scripts/publish.sh` | 早期的 `dist/` 提交脚本，与当前忽略 `dist/` 的策略不匹配，不用于本实例发布 |
+| `scripts/publish-all.sh` | 默认只向 `gh-pages` 发布静态站，不修改 master；Gitee 需要显式设置 `PUBLISH_GITEE=1` |
 | 后台「发布上线」 | 只向目标仓库的 `gh-pages` 推送静态站，不提交源码修改 |
 
-`SKIP_GITEE=1` 可让上游多平台脚本跳过 Gitee，`SUBPATH=/仓库名` 控制子路径。**只需要 GitHub Pages 时，优先使用后台发布。** 个人实例 `s_blog` 的同名脚本已经调整过，不会向 master 提交 `dist/`，具体以该仓库说明为准。
+本地后台提供发布按钮；服务器的 Ops 后台只负责动态站内容编辑，不提供此按钮。命令行发布示例（在本仓库运行，并确认 `origin` 是自己的发布目标）：
+
+```bash
+DB_PATH="$HOME/dev-home-blog/blog.db" SUBPATH=/blog SKIP_GITEE=1 \
+  ./scripts/publish-all.sh 'publish: 更新博客内容'
+```
+
+`SUBPATH` 必须与目标仓库名对应。`DB_PATH` 决定导出哪份内容，可以替换为服务器数据库的一致性快照；本地和服务器内容不会自动同步。
 
 ## 部署方式二：其他静态托管或自己的 Nginx
 
@@ -288,6 +297,8 @@ sqlite3 "file:$HOME/dev-home-blog/blog.db?mode=ro" ".backup '$BACKUP_FILE'"
 | `REPO_DIR` | `.` | GitHub 向导使用的发布工作目录 |
 | `BASE_URL` | 空 | 仅静态导出时使用的 URL 子路径，如 `/blog` |
 | `SECURE_COOKIES` | 关闭 | 设为 `1` 时，CSRF Cookie 仅通过 HTTPS 发送；本地 HTTP 不要开启 |
+| `SERVER_MODE` | 关闭 | 本实例设为 `1` 时常驻运行并关闭裸 `/admin`、`/setup` |
+| `OPS_SERVICE_TOKEN_FILE` | 空 | 管理网关使用的服务凭据文件路径；在线编辑需配套部署 Ops，见[自建指南](docs/self-hosted.md) |
 
 ### 开发与打包
 

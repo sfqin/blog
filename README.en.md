@@ -1,6 +1,8 @@
-# blog_self · Starry Night Voyage
+# s_blog · Starry Night Voyage
 
 [中文](README.md) · **English**
+
+> This repository is the author's personal instance, **[sfqin/blog](https://github.com/sfqin/blog)**, usually checked out as `s_blog`. Its upstream template is [blog_self](https://github.com/sfqin/blog_self). The dynamic site is <https://lvxingzhe.top/>. For online editing and server updates, read the [self-hosting guide](docs/self-hosted.md) (Chinese). The client and local writing workflows below also apply.
 
 A personal blog with Markdown posts, constellation navigation, and an interactive 3D globe for places you have visited. Write on your computer, then publish to GitHub Pages, another static host, or your own server.
 
@@ -62,8 +64,8 @@ Use this for the latest master, Linux, or code changes. You need **Go 1.23+**, G
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/sfqin/blog_self.git
-cd blog_self
+git clone https://github.com/sfqin/blog.git s_blog
+cd s_blog
 go build -o ./blogbin .
 
 DATA_DIR="$HOME/dev-home-blog"
@@ -91,8 +93,8 @@ The explicit `DB_PATH` reuses the client's data. `REPO_DIR` points to your own p
 <summary>Windows PowerShell</summary>
 
 ```powershell
-git clone https://github.com/sfqin/blog_self.git
-cd blog_self
+git clone https://github.com/sfqin/blog.git s_blog
+cd s_blog
 go build -o blogbin.exe .
 
 $dataDir = Join-Path $env:USERPROFILE "dev-home-blog"
@@ -177,13 +179,20 @@ DB_PATH="$HOME/dev-home-blog/blog.db" BASE_URL=/blog \
 
 Check the repository and remotes before using the advanced scripts:
 
-| Entry point | Behavior in the blog_self upstream |
+| Entry point | Behavior in this s_blog instance |
 | --- | --- |
-| `scripts/publish.sh` | Builds root-path `dist/`, commits it, and pushes the current source branch |
-| `scripts/publish-all.sh` | Updates and pushes `dist/`, then publishes `gh-pages`; may also push to a configured Gitee remote |
+| `scripts/publish.sh` | Legacy `dist/` commit workflow; incompatible with this instance's ignored `dist/`, so do not use it here |
+| `scripts/publish-all.sh` | Publishes only to `gh-pages` by default, without changing master; Gitee requires explicit `PUBLISH_GITEE=1` |
 | Admin Publish button | Pushes the static site to the target `gh-pages` branch without committing source changes |
 
-`SKIP_GITEE=1` skips Gitee in the upstream multi-host script; `SUBPATH=/repository-name` controls the URL prefix. **Prefer the admin button if you only need GitHub Pages.** The personal instance's similarly named script behaves differently: it does not commit `dist/` to master. Follow that repository's documentation.
+The publish button is available in the local admin. The server's Ops admin edits dynamic-site content and does not expose that button. To publish from this repository, first confirm that `origin` is your intended target:
+
+```bash
+DB_PATH="$HOME/dev-home-blog/blog.db" SUBPATH=/blog SKIP_GITEE=1 \
+  ./scripts/publish-all.sh 'publish: update blog content'
+```
+
+`SUBPATH` must match the repository name. `DB_PATH` selects the content to export and can point to a consistent snapshot of the server database. Local and server content do not synchronize automatically.
 
 ## Hosting option 2: another static host or your own Nginx
 
@@ -278,6 +287,8 @@ To move to another computer, stop the destination process, place the backup at i
 | `REPO_DIR` | `.` | Publishing workspace used by the GitHub wizard |
 | `BASE_URL` | Empty | Static export URL prefix, such as `/blog` |
 | `SECURE_COOKIES` | Off | Set to `1` for HTTPS-only CSRF cookies; leave off for local HTTP |
+| `SERVER_MODE` | Off | In this instance, `1` enables persistent operation and closes bare `/admin` and `/setup` routes |
+| `OPS_SERVICE_TOKEN_FILE` | Empty | Path to the management gateway's service credential file; online editing also requires Ops, see the [self-hosting guide](docs/self-hosted.md) |
 
 ### Development and packaging
 
