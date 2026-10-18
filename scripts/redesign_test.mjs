@@ -349,58 +349,6 @@ test("wp3", "paper 模式：星空隐藏，阅读面板为纸色", async () => {
 });
 
 // ---------------------------------------------------------------- WP4
-test("wp4", "地球初始朝向出发地，国内标记可见", async () => {
-  const page = await open("/", DESK, { reduced: true });
-  await page.waitForFunction(() => window.__globeDebug?.ready());
-  assert.ok(await page.evaluate(() => window.__globeDebug.countryPoint("CN")), "中国不应藏在初始地球背面");
-  clean(page);
-  await page.close();
-});
-
-for (const viewport of [DESK, MOBILE]) {
-  test("wp4", `足迹 ${viewport.width}：直接列出国内地区，点击进入省市并查看记录`, async () => {
-    const page = await open("/", viewport, { reduced: true });
-    await page.waitForFunction(() => window.__globeDebug?.ready());
-    await scrollToSection(page, "footprint");
-    const country = '#globe-places [data-place="CN"]';
-    assert.equal(await page.$$(country).then((items) => items.length), 1, "应直接提供中国足迹入口");
-    const summary = await page.$eval(country, (el) => el.textContent);
-    assert.match(summary, /广东/);
-    assert.match(summary, /北京/);
-    // The text entry must work even when its country marker faces away.
-    await page.evaluate(() => window.__globeDebug.focusCountry("US"));
-    const activate = async (selector) => {
-      // Center controls before tapping so the fixed mobile navigation rail
-      // cannot cover a button left at the bottom edge after map navigation.
-      await page.$eval(selector, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
-      if (viewport.hasTouch) await page.tap(selector);
-      else await page.click(selector);
-    };
-    await activate(country);
-    await page.waitForFunction(() => window.__globeDebug.state().layer === "country");
-    assert.equal((await page.evaluate(() => window.__globeDebug.state())).country.code, "CN");
-    const province = '#globe-places [data-place="广东省"]';
-    assert.match(await page.$eval(province, (el) => el.textContent), /深圳.*广州/);
-    if (viewport.hasTouch) await activate(province);
-    else { await page.focus(province); await page.keyboard.press("Enter"); }
-    await page.waitForFunction(() => window.__globeDebug.state().layer === "city");
-    assert.equal((await page.evaluate(() => window.__globeDebug.state())).province.name, "广东省");
-    await activate('#globe-places [data-place="深圳市"]');
-    assert.equal((await page.evaluate(() => window.__globeDebug.state())).selected, "深圳市");
-    assert.match(await page.$eval("#globe-notes", (el) => el.textContent), /住了五年的城市/);
-    assert.equal(await page.$eval('#globe-places [data-place="深圳市"]', (el) => el.getAttribute("aria-pressed")), "true");
-    await activate("#globe-cd-up");
-    await page.waitForFunction(() => window.__globeDebug.state().layer === "country");
-    assert.ok(await page.$(province));
-    await activate("#globe-cd-up");
-    await page.waitForFunction(() => window.__globeDebug.state().layer === "globe");
-    assert.ok(await page.$(country));
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), 0);
-    clean(page);
-    await page.close();
-  });
-}
-
 test("wp4", "地球：两栏、出发地与航线、面包屑与下钻提示", async () => {
   const page = await open("/", DESK);
   await scrollToSection(page, "footprint");

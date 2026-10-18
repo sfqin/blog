@@ -734,78 +734,8 @@
 
   function updateSelectionPanels() {
     var content = selectedContent();
-    var places = document.getElementById("globe-places");
-    if (places) places.querySelectorAll("[data-place]").forEach(function (button) {
-      button.setAttribute("aria-pressed", String(button.getAttribute("data-place") === state.selected));
-    });
     updateNotes(content.notes);
     updateMomentLinks(content.momentIds);
-  }
-
-  function selectTarget(key) {
-    cancelPendingNavigation(state.layer, key);
-    state.selected = key;
-    redraw();
-    updateSelectionPanels();
-  }
-
-  // Keep recorded places discoverable without rotating the globe or knowing
-  // the map's double-click gesture. Names retain their original matching keys.
-  function renderPlaces() {
-    var box = document.getElementById("globe-places");
-    if (!box) return;
-    box.replaceChildren();
-    var country = state.country && state.footprints.find(function (fp) {
-      return fp.code === state.country.code;
-    });
-    var items = state.footprints;
-    if (state.layer === "country") items = country ? country.provinces || [] : [];
-    if (state.layer === "city") {
-      var province = country && (country.provinces || []).find(function (p) {
-        return p.name === state.province.name;
-      });
-      items = province ? province.cities || [] : [];
-    }
-    var seen = new Set();
-    items.forEach(function (item) {
-      var key = state.layer === "globe" ? item.code : item.name;
-      if (!key || seen.has(key)) return;
-      seen.add(key);
-      var region = state.regionData && state.regionData.regions.find(function (r) { return r.name === key; });
-      var drillable = state.layer === "globe" || (state.layer === "country" && region && region.drill);
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "globe-place";
-      button.setAttribute("data-place", key);
-      button.setAttribute("aria-pressed", String(key === state.selected));
-      var name = document.createElement("span");
-      name.className = "globe-place-name";
-      name.textContent = state.layer === "globe" ? item.name || key : Core.displayRegionName(dispName(key));
-      button.appendChild(name);
-      var children = state.layer === "globe" ? item.provinces : state.layer === "country" ? item.cities : [];
-      var names = Array.from(new Set((children || []).map(function (child) { return Core.displayRegionName(child.name); })));
-      if (names.length) {
-        var summary = document.createElement("span");
-        summary.className = "globe-place-summary";
-        summary.textContent = names.join(" · ");
-        button.appendChild(summary);
-      }
-      if (drillable) {
-        var arrow = document.createElement("span");
-        arrow.className = "globe-place-arrow";
-        arrow.setAttribute("aria-hidden", "true");
-        arrow.textContent = "→";
-        button.appendChild(arrow);
-      }
-      button.addEventListener("click", function () {
-        cancelTapSequence();
-        selectTarget(key);
-        if (state.layer === "globe") drillCountry(item);
-        else if (state.layer === "country" && drillable) drillCity(region);
-      });
-      box.appendChild(button);
-    });
-    box.hidden = !box.childElementCount;
   }
 
   function updateNotes(notes) {
@@ -1118,7 +1048,7 @@
     }).catch(function () {
       if (token === navigationToken) {
         pendingNavigation = null;
-        setLoadMessage("地图加载失败，请重试", true);
+        setLoadMessage("加载失败，双击重试", true);
       }
     });
   }
@@ -1140,7 +1070,7 @@
     }).catch(function () {
       if (token === navigationToken) {
         pendingNavigation = null;
-        setLoadMessage("地图加载失败，请重试", true);
+        setLoadMessage("加载失败，双击重试", true);
       }
     });
   }
@@ -1183,7 +1113,7 @@
 
   function scrollToTop() {
     var sec = document.getElementById("footprint");
-    if (sec) sec.scrollIntoView({ behavior: reducedMotion() ? "instant" : "smooth", block: "start" });
+    if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // Breadcrumb + back button chrome.
@@ -1218,7 +1148,6 @@
       hint.style.display = state.layer === "city" ? "none" : "inline-flex";
     }
     renderStats();
-    renderPlaces();
     applyTouchAction();   // keep canvas gesture mode in sync with the layer (P4)
     updateSelectionPanels();
   }
@@ -1592,6 +1521,14 @@
     var p = downPt;
     downPt = null;
 
+    function selectTarget(key) {
+      cancelPendingNavigation(state.layer, key);
+      state.selected = key;
+      if (state.layer === "globe") drawGlobe();
+      else drawRegions();
+      updateSelectionPanels();
+    }
+
     function registerTargetTap(layer, key) {
       selectTarget(key);
       return tapTracker.register(layer, key, Date.now(), gestureEpoch);
@@ -1749,9 +1686,6 @@
     world = res[0];
     state.footprints = res[1] || [];
     buildRoutes();
-    // Start with the departure region facing the viewer, including when
-    // reduced motion disables rotation and the globe remains still.
-    state.rot = { x: routes.origin.lat * Math.PI / 180, y: routes.origin.lon * Math.PI / 180 };
     updateChrome();
     observeStats();
     drawGlobe();
