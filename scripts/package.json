@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node globe_core_test.mjs && node globe_logic_test.mjs",
-    "test:browser": "node globe_test.mjs"
+    "test:browser": "node globe_loading_test.mjs && node globe_test.mjs"
   },
   "keywords": [],
   "author": "",

@@ -54,7 +54,6 @@
         {{with .Profile.StackTags}}<div class="about-row"><dt>技能</dt><dd class="tags">
           {{- range $i, $t := .}}<span style="--i:{{$i}}">{{$t}}</span>{{end -}}
         </dd></div>{{end}}
-        {{with .Profile.GitHubURL}}<div class="about-row"><dt>GitHub</dt><dd><a class="ink-link" href="{{.}}" target="_blank" rel="noopener">{{.}}</a></dd></div>{{end}}
       </dl>
     </div>
   </div>

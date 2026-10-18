@@ -274,6 +274,9 @@
   // Layer 1 — the globe
   // ============================================================
   function drawGlobe() {
+    // Visibility and pointer events can arrive before both boot requests finish.
+    // Do not alter the canvas state until the map is ready.
+    if (!world) return;
     var size = SIZE;
     ctx.clearRect(0, 0, size, size);
 
@@ -1270,7 +1273,7 @@
   // Animation loop (globe only)
   // ============================================================
   function startLoop() {
-    if (state.raf) return;
+    if (!world || state.raf) return;
     var step = function () {
       if (state.layer !== "globe") { state.raf = null; return; }
       if (!state.dragging) {
@@ -1679,13 +1682,16 @@
   }
 
   resize();
+  setLoadMessage("正在加载足迹地图…");
   Promise.all([
     loadJSON("/static/geo/world.json"),
-    loadJSON("/api/footprints").catch(function () { return []; }),
+    loadJSON("/api/footprints"),
   ]).then(function (res) {
     world = res[0];
     state.footprints = res[1] || [];
     buildRoutes();
+    state.rot = { x: routes.origin.lat * Math.PI / 180, y: routes.origin.lon * Math.PI / 180 };
+    clearLoadMessage();
     updateChrome();
     observeStats();
     drawGlobe();
@@ -1694,6 +1700,8 @@
       startBackgroundWarmup();
     });
   }).catch(function (err) {
+    stopLoop();
+    setLoadMessage("地图数据加载失败，请刷新重试", true);
     renderError("地球数据加载失败");
     console.error(err);
   });
