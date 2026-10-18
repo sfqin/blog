@@ -54,7 +54,6 @@
         {{with .Profile.StackTags}}<div class="about-row"><dt>技能</dt><dd class="tags">
           {{- range $i, $t := .}}<span style="--i:{{$i}}">{{$t}}</span>{{end -}}
         </dd></div>{{end}}
-        {{with .Profile.GitHubURL}}<div class="about-row"><dt>GitHub</dt><dd><a class="ink-link" href="{{.}}" target="_blank" rel="noopener">{{.}}</a></dd></div>{{end}}
       </dl>
     </div>
   </div>
@@ -101,6 +100,7 @@
           <button id="globe-cd-up" class="globe-back-btn" type="button" style="display:none" aria-label="返回上一级" data-magnetic>← 返回上一级</button>
           <span id="globe-drill-hint" class="globe-drill-hint" role="note">双击进入下一级</span>
         </div>
+        <div id="globe-places" class="globe-places" role="group" aria-label="去过的地方" hidden></div>
         <div id="globe-notes" class="globe-notes" style="display:none"></div>
         <div id="globe-moment-links" class="globe-moment-links" style="display:none"></div>
       </div>

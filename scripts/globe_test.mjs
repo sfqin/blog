@@ -185,6 +185,11 @@ try {
   assert.ok(zoomedProvincePoint, "放大后无法定位广东省");
   await doubleTap(page, zoomedProvincePoint);
   await page.waitForFunction(() => window.__globeDebug.state().layer === "city");
+  assert.deepEqual(
+    await page.$$eval("#globe-places [data-place]", (items) => items.map((item) => item.dataset.place)),
+    ["深圳市", "广州市"],
+    "同一城市多次到访应只显示一个入口，同时保留全部记录",
+  );
   assert.equal(
     await page.$eval("#globe-drill-hint", (element) => getComputedStyle(element).display === "none"),
     true,

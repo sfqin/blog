@@ -1251,6 +1251,28 @@ body.lightbox-open { overflow: hidden; }
 
 .globe-panel { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
+.globe-places { width: 100%; max-width: 600px; text-align: left; }
+.globe-place {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(var(--gold-rgb), .18);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.globe-place-name { grid-column: 1; font: 600 16px/1.5 var(--font-serif); color: var(--gold-hi); }
+.globe-place-summary { grid-column: 1; font: 400 12px/1.8 var(--font-sans); color: var(--muted); overflow-wrap: anywhere; }
+.globe-place-arrow { grid-column: 2; grid-row: 1; align-self: center; color: var(--gold); }
+.globe-place:hover, .globe-place[aria-pressed="true"] { background: rgba(var(--gold-rgb), .08); }
+.globe-place:hover .globe-place-summary, .globe-place[aria-pressed="true"] .globe-place-summary { color: var(--text); }
+
 .globe-breadcrumb { font: 500 12px/1.6 var(--font-mono); letter-spacing: .14em; color: var(--muted); }
 .globe-breadcrumb a { color: var(--gold); cursor: pointer; transition: color var(--t-fast); }
 .globe-breadcrumb a:hover { color: var(--gold-hi); }
